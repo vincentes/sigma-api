@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using AdminTools.Models;
+using AdminTools.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace Sigma
+namespace AdminTools
 {
     public class Startup
     {
@@ -24,16 +23,9 @@ namespace Sigma
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.Authority = "https://dev-828153.oktapreview.com/oauth2/default/v1/token";
-                options.Audience = "api://default";
-                options.RequireHttpsMetadata = false;
-            });
+            services.Configure<OktaSettings>(Configuration.GetSection("Okta"));
+            services.AddSingleton<ITokenService, OktaTokenService>();
+            services.AddTransient<IApiService, SimpleApiService>();
             services.AddMvc();
         }
 
@@ -42,10 +34,22 @@ namespace Sigma
         {
             if (env.IsDevelopment())
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
 
-            app.UseMvc();
+            app.UseStaticFiles();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
