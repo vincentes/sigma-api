@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,9 +40,11 @@ namespace API.Controllers
             if(result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.CI);
-                return await GenerateJwtToken(model.CI, appUser);
+                return Ok(new {
+                    Token = await GenerateJwtToken(model.CI, appUser)
+                });
             }
-            throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
+            return Unauthorized();
         }
 
         [HttpPost]
@@ -55,9 +58,12 @@ namespace API.Controllers
             if(result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
-                return (IActionResult) await GenerateJwtToken(model.CI, user);
+                return Ok(new
+                {
+                    Token = await GenerateJwtToken(model.CI, user)
+                });
             }
-            throw new ApplicationException("UKNOWN_ERROR");
+            return StatusCode((int)HttpStatusCode.Conflict);
         }
 
         [Authorize]
