@@ -83,6 +83,7 @@ namespace API
 
             app.UseAuthentication();
             app.UseMvc();
+            app.UseCors("CorsPolicy");
             context.Database.EnsureCreated();
         }
     }
