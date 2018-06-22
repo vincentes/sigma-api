@@ -1,25 +1,18 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public partial class Docente
+    public class Docente : IdentityUser
     {
-        public Docente()
-        {
-            Horario = new HashSet<Horario>();
-            Prueba = new HashSet<Prueba>();
-            Tarea = new HashSet<Tarea>();
-        }
-
-        public int IdDocente { get; set; }
-        public int IdUsrDocente { get; set; }
-        public int MateriaDocente { get; set; }
-
-        public Usuario IdUsrDocenteNavigation { get; set; }
-        public Materia MateriaDocenteNavigation { get; set; }
-        public ICollection<Horario> Horario { get; set; }
-        public ICollection<Prueba> Prueba { get; set; }
-        public ICollection<Tarea> Tarea { get; set; }
+        public int MateriaId { get; set; }
+        public virtual ICollection<Grupo> Grupos { get; set; }
+        public virtual ICollection<GrupoDocente> GrupoDocentes { get; set; }
+        public virtual Materia Materia { get; set; }
     }
 }

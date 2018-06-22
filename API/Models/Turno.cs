@@ -1,22 +1,19 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public partial class Turno
+    public class Turno
     {
-        public Turno()
-        {
-            Adscripto = new HashSet<Adscripto>();
-            Grupo = new HashSet<Grupo>();
-            HoraTurno = new HashSet<HoraTurno>();
-        }
-
-        public int IdTurno { get; set; }
-        public string NombreTurno { get; set; }
-
-        public ICollection<Adscripto> Adscripto { get; set; }
-        public ICollection<Grupo> Grupo { get; set; }
-        public ICollection<HoraTurno> HoraTurno { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public virtual DbSet<Grupo> Grupos { get; set; }
     }
 }

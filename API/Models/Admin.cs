@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class Alumno : IdentityUser
+    public class Admin : IdentityUser
     {
-        public virtual Grupo Group { get; set; }
+        
     }
 }

@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public partial class Orientacion
+    public class Orientacion
     {
-        public Orientacion()
-        {
-            Grupo = new HashSet<Grupo>();
-            Materia = new HashSet<Materia>();
-        }
-
-        public int IdOrientacion { get; set; }
-        public string NombreOrientacion { get; set; }
-
-        public ICollection<Grupo> Grupo { get; set; }
-        public ICollection<Materia> Materia { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public virtual ICollection<Grupo> Grupos { get; set; }
+        public virtual ICollection<Materia> Materias { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace API.Repository
         {
             var turno = _context.Add(item);
             _context.SaveChanges();
-            item.IdTurno = turno.Entity.IdTurno;
+            item.Id = turno.Entity.Id;
             return item;
         }
 
@@ -31,18 +31,18 @@ namespace API.Repository
 
         public IEnumerable<Turno> GetAll()
         {
-            return _context.Turno.ToList();
+            return _context.Turnos.ToList();
         }
 
         public Turno GetById(int id)
         {
-            return _context.Turno.SingleOrDefault(x => x.IdTurno == id);
+            return _context.Turnos.SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Turno item)
         {
-            var turno = GetById(item.IdTurno);
-            turno.NombreTurno = item.NombreTurno;
+            var turno = GetById(item.Id);
+            turno.Nombre = item.Nombre;
             _context.Update(turno);
             _context.SaveChanges();
         }

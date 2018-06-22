@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class Materia
+    public class GrupoDocente
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public int OrientacionId { get; set; }
-        public virtual Orientacion Orientacion { get; set;}
-        public virtual ICollection<Docente> Docentes { get; set; }
+        public int GrupoId { get; set; }
+        public string DocenteId { get; set; }
+        public virtual Grupo Grupo { get; set; }
+        public virtual Docente Docente { get; set; }
     }
 }

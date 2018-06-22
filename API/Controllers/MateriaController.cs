@@ -11,79 +11,75 @@ namespace API.Controllers
 {
     [Produces("application/json")]
     [Route("[controller]")]
-    public class TurnoController : Controller
+    public class MateriaController : Controller
     {
-        private readonly IRepository<Turno> _repo;
+        private readonly IRepository<Materia> _repo;
 
-        public TurnoController(IRepository<Turno> repo)
+        public MateriaController(IRepository<Materia> repo)
         {
             _repo = repo;
         }
 
-        // GET: api/Turno
         [HttpGet]
-        public IEnumerable<Turno> Get()
+        public IEnumerable<Materia> Get()
         {
             return _repo.GetAll();
         }
 
-        // GET: api/Turno/5
-        [HttpGet("{id}", Name = "GetTurno")]
+        [HttpGet("{id}", Name = "GetMateria")]
         public IActionResult Get(int id)
         {
-            var turno = _repo.GetById(id);
-            if (turno == null)
+            var materia = _repo.GetById(id);
+            if (materia == null)
             {
                 return NotFound();
             }
-            return Ok(turno);
+            return Ok(materia);
         }
 
-        // POST: api/Turno
         [HttpPost]
-        public IActionResult Post([FromBody]Turno value)
+        public IActionResult Post([FromBody]Materia value)
         {
             if (value == null)
             {
                 return BadRequest();
             }
 
-            var turno = _repo.Add(value);
-            return CreatedAtRoute("GetTurno", new { id = turno.Id }, turno);
+            var materia = _repo.Add(value);
+            return CreatedAtRoute("GetMateria", new { id = materia.Id }, materia);
         }
 
-        // PUT: api/Turno/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody]Turno value)
+        public IActionResult Put(int id, [FromBody]Materia value)
         {
             if (value == null)
             {
                 return BadRequest();
             }
 
-            var turno = _repo.GetById(id);
-            if (turno == null)
+            var materia = _repo.GetById(id);
+            if (materia == null)
             {
                 return NotFound();
             }
 
-            turno.Id = id;
+            materia.Id = id;
             _repo.Update(value);
 
             return NoContent();
         }
 
-        // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var turno = _repo.GetById(id);
-            if (turno == null)
+            var materia = _repo.GetById(id);
+            if (materia == null)
             {
                 return NotFound();
             }
-            _repo.Delete(turno);
+            _repo.Delete(materia);
             return NoContent();
         }
+
     }
 }

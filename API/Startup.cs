@@ -32,8 +32,15 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SigmaContext>(x => x.UseSqlServer(@"Server=vincentes-pc\vincentex;Database=Sigma;Trusted_Connection=True;"));
+            services.AddDbContext<SigmaContext>(x => 
+                x.UseSqlServer(@"Server=vincentes-pc\vincentex;Database=Sigma;Trusted_Connection=True;")
+            );
             services.AddTransient<IRepository<Turno>, RTurno>();
+            services.AddTransient<IRepository<Materia>, RMateria>();
+            services.AddTransient<IRepository<Orientacion>, ROrientacion>();
+            services.AddTransient<IRepository<Grupo>, RGrupo>();
+            services.AddTransient<IUserRepository<Docente>, RDocente>();
+            services.AddTransient<IRepository<GrupoDocente>, RGrupoDocente>();
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -83,6 +90,7 @@ namespace API
 
             app.UseAuthentication();
             app.UseMvc();
+            app.UseStaticFiles();
             app.UseCors("CorsPolicy");
             context.Database.EnsureCreated();
         }

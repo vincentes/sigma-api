@@ -5,6 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20180617005312_Init.cs" />
+    <Compile Remove="Migrations\20180617005312_Init.Designer.cs" />
+    <Compile Remove="Migrations\20180619021650_Init2222.cs" />
+    <Compile Remove="Migrations\20180619021650_Init2222.Designer.cs" />
+    <Compile Remove="Migrations\20180619021953_Init22222.cs" />
+    <Compile Remove="Migrations\20180619021953_Init22222.Designer.cs" />
+    <Compile Remove="Migrations\20180619022049_Init2222222.cs" />
+    <Compile Remove="Migrations\20180619022049_Init2222222.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
