@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-
+using Pomelo.EntityFrameworkCore.MySql;
 namespace API
 {
     public class Startup
@@ -32,8 +32,16 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SigmaContext>(x => 
-                x.UseSqlServer(@"Server=vincentes-pc\vincentex;Database=Sigma;Trusted_Connection=True;")
+            MySql.Data.MySqlClient.MySqlConnectionStringBuilder connectionString = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder
+            {
+                UserID = "root",
+                Server = "127.0.0.1",
+                Port = 1337,
+                Password = "root",
+                Database = "sigma"
+            };
+            services.AddDbContext<SigmaContext>(x =>
+                x.UseMySql(connectionString.ToString())
             );
             services.AddTransient<IRepository<Turno>, RTurno>();
             services.AddTransient<IRepository<Materia>, RMateria>();

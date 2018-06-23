@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Route("[controller]")]
-    [Authorize(Roles = "Docente")]
     public class OrientacionController : Controller
     {
         private readonly IRepository<Orientacion> _repo;

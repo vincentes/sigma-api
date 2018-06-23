@@ -75,14 +75,14 @@ namespace API.Controllers
                             throw new ApplicationException("Creating role " + item + "failed with error(s): " + createRoleResult.Errors);
                         }
                     }
+                }
 
-                    if (!await _userManager.IsInRoleAsync(user: user, role: "Docente"))
+                if (!await _userManager.IsInRoleAsync(user: user, role: "Docente"))
+                {
+                    var assignRoleResult = await _userManager.AddToRoleAsync(user, "Docente");
+                    if (!assignRoleResult.Succeeded)
                     {
-                        var assignRoleResult = await _userManager.AddToRoleAsync(user, "Docente");
-                        if (!assignRoleResult.Succeeded)
-                        {
-                            throw new ApplicationException("Creating role 'Docente' failed with error(s): " + assignRoleResult.Errors);
-                        }
+                        throw new ApplicationException("Creating role 'Docente' failed with error(s): " + assignRoleResult.Errors);
                     }
                 }
 

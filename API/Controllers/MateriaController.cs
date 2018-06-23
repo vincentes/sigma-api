@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
 using API.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace API.Controllers
 {
     [Produces("application/json")]
     [Route("[controller]")]
+    [Authorize(Roles = "Docente")]
     public class MateriaController : Controller
     {
         private readonly IRepository<Materia> _repo;
