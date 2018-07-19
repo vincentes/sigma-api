@@ -12,9 +12,13 @@ namespace API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public string Nombre { get; set; }
-        public int OrientacionId { get; set; }
-        public virtual Orientacion Orientacion { get; set;}
+
         public virtual ICollection<Docente> Docentes { get; set; }
+
+        public virtual ICollection<API.Models.MateriaOrientacion> MateriaOrientacion { get; set; }
+
+        public virtual ICollection<Tarea> Tareas { get; set; }
     }
 }

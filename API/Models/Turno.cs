@@ -13,7 +13,9 @@ namespace API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public string Nombre { get; set; }
-        public virtual DbSet<Grupo> Grupos { get; set; }
+
+        public virtual ICollection<Grupo> Grupos { get; set; }
     }
 }

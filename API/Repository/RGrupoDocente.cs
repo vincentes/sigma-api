@@ -1,8 +1,15 @@
-﻿using API.Models;
+﻿// Decompiled with JetBrains decompiler
+// Type: API.Repository.RGrupoDocente
+// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
+// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
+
+using API.Models;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace API.Repository
 {
@@ -12,40 +19,40 @@ namespace API.Repository
 
         public RGrupoDocente(SigmaContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         public GrupoDocente Add(GrupoDocente item)
         {
-            var grupoDocente = _context.Add(item);
-            _context.SaveChanges();
-            item.Id = grupoDocente.Entity.Id;
+            EntityEntry<GrupoDocente> entityEntry = this._context.Add<GrupoDocente>(item);
+            this._context.SaveChanges();
+            item.Id = entityEntry.Entity.Id;
             return item;
         }
 
         public void Delete(GrupoDocente item)
         {
-            _context.Remove(item);
-            _context.SaveChanges();
+            this._context.Remove<GrupoDocente>(item);
+            this._context.SaveChanges();
         }
 
         public IEnumerable<GrupoDocente> GetAll()
         {
-            return _context.GrupoDocente.ToList();
+            return (IEnumerable<GrupoDocente>)this._context.GrupoDocente.ToList<GrupoDocente>();
         }
 
         public GrupoDocente GetById(int id)
         {
-            return _context.GrupoDocente.SingleOrDefault(x => x.Id == id);
+            return this._context.GrupoDocente.SingleOrDefault<GrupoDocente>((Expression<Func<GrupoDocente, bool>>)(x => x.Id == id));
         }
 
         public void Update(GrupoDocente item)
         {
-            var grupoDocente = GetById(item.Id);
-            grupoDocente.DocenteId = item.DocenteId;
-            grupoDocente.GrupoId = item.GrupoId;
-            _context.Update(grupoDocente);
-            _context.SaveChanges();
+            GrupoDocente byId = this.GetById(item.Id);
+            byId.DocenteId = item.DocenteId;
+            byId.GrupoId = item.GrupoId;
+            this._context.Update<GrupoDocente>(byId);
+            this._context.SaveChanges();
         }
     }
 }

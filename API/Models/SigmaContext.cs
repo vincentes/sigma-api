@@ -1,23 +1,37 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace API.Models
 {
     public partial class SigmaContext : IdentityDbContext<IdentityUser>
     {
         public virtual DbSet<Turno> Turnos { get; set; }
+
         public virtual DbSet<Materia> Materias { get; set; }
+
         public virtual DbSet<Grupo> Grupos { get; set; }
+
         public virtual DbSet<Orientacion> Orientaciones { get; set; }
+
         public virtual DbSet<Docente> Docentes { get; set; }
+
         public virtual DbSet<Alumno> Alumnos { get; set; }
+
         public virtual DbSet<Admin> Admins { get; set; }
-        public virtual DbSet<GrupoDocente> GrupoDocente { get; set; }
+
+        public virtual DbSet<API.Models.GrupoDocente> GrupoDocente { get; set; }
+
+        public virtual DbSet<API.Models.MateriaOrientacion> MateriaOrientacion { get; set; }
+
+        public virtual DbSet<API.Models.Imagen> Imagen { get; set; }
+
+        public virtual DbSet<API.Models.TareaImagen> TareaImagen { get; set; }
+
+        public virtual DbSet<Tarea> Tareas { get; set; }
+        public virtual DbSet<Token> Tokens { get; set; }
+
+        public virtual DbSet<SigmaUser> SigmaUsers { get; set; }
 
         public SigmaContext(DbContextOptions options) : base(options)
         {
@@ -35,16 +49,49 @@ namespace API.Models
             builder.Entity<Orientacion>().HasKey(e => e.Id);
             builder.Entity<Turno>().HasKey(e => e.Id);
             builder.Entity<Materia>().HasKey(e => e.Id);
+            builder.Entity<Turno>().HasKey(e => e.Id);
+            builder.Entity<MateriaOrientacion>().HasKey(e => e.Id);
+            builder.Entity<Materia>().HasKey(e => e.Id);
+            builder.Entity<Imagen>().HasKey(e => e.Id);
+            builder.Entity<Tarea>().HasKey(e => e.Id);
+            builder.Entity<GrupoDocente>().HasKey(e => e.Id);
+            builder.Entity<Token>().HasKey(e => e.Id);
 
             builder.Entity<Grupo>()
                 .HasOne(d => d.Orientacion)
                 .WithMany(p => p.Grupos)
                 .HasForeignKey(d => d.OrientacionId);
 
+            builder.Entity<Grupo>()
+                .HasOne(d => d.Turno)
+                .WithMany(p => p.Grupos)
+                .HasForeignKey(d => d.TurnoId);
+
+            builder.Entity<Grupo>()
+                .HasOne(d => d.Turno)
+                .WithMany(p => p.Grupos)
+                .HasForeignKey(d => d.TurnoId);
+
             builder.Entity<Orientacion>()
                 .HasMany(d => d.Grupos)
                 .WithOne(p => p.Orientacion)
                 .HasForeignKey(d => d.OrientacionId);
+
+            builder.Entity<GrupoDocente>()
+                .HasOne(d => d.Docente)
+                .WithMany(p => p.GrupoDocentes)
+                .HasForeignKey(d => d.DocenteId);
+
+            builder.Entity<Docente>()
+                .HasOne(d => d.Materia)
+                .WithMany(p => p.Docentes)
+                .HasForeignKey(d => d.MateriaId);
+
+
+            builder.Entity<Docente>()
+                .HasOne(d => d.SigmaUser)
+                .WithOne(p => p.)
+                .HasForeignKey(d => d.MateriaId);
 
             builder.Entity<GrupoDocente>()
                 .HasOne(d => d.Grupo)
@@ -56,15 +103,34 @@ namespace API.Models
                 .WithMany(p => p.GrupoDocentes)
                 .HasForeignKey(d => d.DocenteId);
 
-            builder.Entity<Orientacion>()
-                .HasMany(d => d.Materias)
-                .WithOne(p => p.Orientacion)
+            builder.Entity<MateriaOrientacion>()
+                .HasOne(d => d.Materia)
+                .WithMany(p => p.MateriaOrientacion)
+                .HasForeignKey(d => d.MateriaId);
+
+            builder.Entity<MateriaOrientacion>()
+                .HasOne(d => d.Orientacion)
+                .WithMany(p => p.MateriaOrientacion)
                 .HasForeignKey(d => d.OrientacionId);
 
-            builder.Entity<Docente>()
-                .HasOne(d => d.Materia)
-                .WithMany(p => p.Docentes)
-                .HasForeignKey(d => d.MateriaId);
+            builder.Entity<TareaImagen>()
+                .HasOne(d => d.Imagen)
+                .WithMany(p => p.TareaImagen)
+                .HasForeignKey(d => d.ImagenId);
+
+            builder.Entity<TareaImagen>()
+                .HasOne(d => d.Tarea)
+                .WithMany(p => p.TareaImagen)
+                .HasForeignKey(d => d.TareaId);
+
+            builder.Entity<SigmaUser>()
+                .HasMany(d => d.Tokens)
+                .WithOne(p => p.SigmaUser)
+                .HasForeignKey(d => d.SigmaUserId);
+
+            builder.Entity<SigmaUser>()
+                .HasOne(d => d.User)
+                .WithOne(p => p.SigmaUser);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

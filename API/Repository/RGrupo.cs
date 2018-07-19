@@ -1,8 +1,17 @@
-﻿using API.Models;
+﻿// Decompiled with JetBrains decompiler
+// Type: API.Repository.RGrupo
+// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
+// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
+
+using API.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace API.Repository
 {
@@ -12,43 +21,43 @@ namespace API.Repository
 
         public RGrupo(SigmaContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         public Grupo Add(Grupo item)
         {
-            var grupo = _context.Add(item);
-            _context.SaveChanges();
-            item.Id = grupo.Entity.Id;
+            EntityEntry<Grupo> entityEntry = this._context.Add<Grupo>(item);
+            this._context.SaveChanges();
+            item.Id = entityEntry.Entity.Id;
             return item;
         }
 
         public void Delete(Grupo item)
         {
-            _context.Remove(item);
-            _context.SaveChanges();
+            this._context.Remove<Grupo>(item);
+            this._context.SaveChanges();
         }
 
         public IEnumerable<Grupo> GetAll()
         {
-            return _context.Grupos.ToList();
+            return (IEnumerable<Grupo>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)this._context.Grupos.Include<Grupo, Turno>((Expression<Func<Grupo, Turno>>)(e => e.Turno)).Include<Grupo, Orientacion>((Expression<Func<Grupo, Orientacion>>)(e => e.Orientacion)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Grupo>((Expression<Func<GrupoDocente, Grupo>>)(t => t.Grupo)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Docente>((Expression<Func<GrupoDocente, Docente>>)(t => t.Docente)).ToList<Grupo>();
         }
 
         public Grupo GetById(int id)
         {
-            return _context.Grupos.SingleOrDefault(x => x.Id == id);
+            return ((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)this._context.Grupos.Include<Grupo, Turno>((Expression<Func<Grupo, Turno>>)(e => e.Turno)).Include<Grupo, Orientacion>((Expression<Func<Grupo, Orientacion>>)(e => e.Orientacion)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Grupo>((Expression<Func<GrupoDocente, Grupo>>)(t => t.Grupo)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Docente>((Expression<Func<GrupoDocente, Docente>>)(t => t.Docente)).SingleOrDefault<Grupo>((Expression<Func<Grupo, bool>>)(x => x.Id == id));
         }
 
         public void Update(Grupo item)
         {
-            var grupo = GetById(item.Id);
-            grupo.Id = item.Id;
-            grupo.Grado = item.Grado;
-            grupo.OrientacionId = item.OrientacionId;
-            grupo.TurnoId = item.TurnoId;
-            grupo.Numero = item.Numero;
-            _context.Update(grupo);
-            _context.SaveChanges();
+            Grupo byId = this.GetById(item.Id);
+            byId.Id = item.Id;
+            byId.Grado = item.Grado;
+            byId.OrientacionId = item.OrientacionId;
+            byId.TurnoId = item.TurnoId;
+            byId.Numero = item.Numero;
+            this._context.Update<Grupo>(byId);
+            this._context.SaveChanges();
         }
     }
 }

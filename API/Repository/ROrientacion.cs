@@ -1,9 +1,17 @@
-﻿using API.Models;
+﻿// Decompiled with JetBrains decompiler
+// Type: API.Repository.ROrientacion
+// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
+// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
+
+using API.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace API.Repository
 {
@@ -13,39 +21,39 @@ namespace API.Repository
 
         public ROrientacion(SigmaContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         public Orientacion Add(Orientacion item)
         {
-            var orientacion = _context.Add(item);
-            _context.SaveChanges();
-            item.Id = orientacion.Entity.Id;
+            EntityEntry<Orientacion> entityEntry = this._context.Add<Orientacion>(item);
+            this._context.SaveChanges();
+            item.Id = entityEntry.Entity.Id;
             return item;
         }
 
         public void Delete(Orientacion item)
         {
-            _context.Remove(item);
-            _context.SaveChanges();
+            this._context.Remove<Orientacion>(item);
+            this._context.SaveChanges();
         }
 
         public IEnumerable<Orientacion> GetAll()
         {
-            return _context.Orientaciones.Include(t => t.Materias).Include(t => t.Grupos).ToList();
+            return (IEnumerable<Orientacion>)((IIncludableQueryable<Orientacion, IEnumerable<MateriaOrientacion>>)((IIncludableQueryable<Orientacion, IEnumerable<MateriaOrientacion>>)((IIncludableQueryable<Orientacion, IEnumerable<Grupo>>)this._context.Orientaciones.Include<Orientacion, ICollection<Grupo>>((Expression<Func<Orientacion, ICollection<Grupo>>>)(t => t.Grupos))).ThenInclude<Orientacion, Grupo, Turno>((Expression<Func<Grupo, Turno>>)(x => x.Turno)).Include<Orientacion, ICollection<MateriaOrientacion>>((Expression<Func<Orientacion, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Orientacion, MateriaOrientacion, Orientacion>((Expression<Func<MateriaOrientacion, Orientacion>>)(x => x.Orientacion)).Include<Orientacion, ICollection<MateriaOrientacion>>((Expression<Func<Orientacion, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Orientacion, MateriaOrientacion, Materia>((Expression<Func<MateriaOrientacion, Materia>>)(x => x.Materia)).ToList<Orientacion>();
         }
 
         public Orientacion GetById(int id)
         {
-            return _context.Orientaciones.SingleOrDefault(x => x.Id == id);
+            return ((IIncludableQueryable<Orientacion, IEnumerable<MateriaOrientacion>>)((IIncludableQueryable<Orientacion, IEnumerable<MateriaOrientacion>>)((IIncludableQueryable<Orientacion, IEnumerable<Grupo>>)this._context.Orientaciones.Include<Orientacion, ICollection<Grupo>>((Expression<Func<Orientacion, ICollection<Grupo>>>)(t => t.Grupos))).ThenInclude<Orientacion, Grupo, Turno>((Expression<Func<Grupo, Turno>>)(x => x.Turno)).Include<Orientacion, ICollection<MateriaOrientacion>>((Expression<Func<Orientacion, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Orientacion, MateriaOrientacion, Orientacion>((Expression<Func<MateriaOrientacion, Orientacion>>)(x => x.Orientacion)).Include<Orientacion, ICollection<MateriaOrientacion>>((Expression<Func<Orientacion, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Orientacion, MateriaOrientacion, Materia>((Expression<Func<MateriaOrientacion, Materia>>)(x => x.Materia)).SingleOrDefault<Orientacion>((Expression<Func<Orientacion, bool>>)(x => x.Id == id));
         }
 
         public void Update(Orientacion item)
         {
-            var orientacion = GetById(item.Id);
-            orientacion.Nombre = item.Nombre;
-            _context.Update(orientacion);
-            _context.SaveChanges();
+            Orientacion byId = this.GetById(item.Id);
+            byId.Nombre = item.Nombre;
+            this._context.Update<Orientacion>(byId);
+            this._context.SaveChanges();
         }
     }
 }

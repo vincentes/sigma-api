@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using API.Models;
+using API.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,7 @@ namespace API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IRepository<SigmaUser> _sgRepo;
         private readonly IConfiguration _configuration;
         private readonly string[] _roles;
 
@@ -48,8 +50,10 @@ namespace API.Controllers
             if (result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.CI);
+                var roles = await _userManager.GetRolesAsync(appUser);
                 return Ok(new {
-                    Token = await GenerateJwtToken(model.CI, appUser)
+                    Token = await GenerateJwtToken(model.CI, appUser),
+                    Roles = roles
                 });
             }
             return Unauthorized();
@@ -58,10 +62,16 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterDocente([FromBody] RegisterDocenteDto model)
         {
-            var user = new Docente();
+            var user = new IdentityUserExt();
             user.UserName = model.CI;
-            user.MateriaId = model.MateriaId;
             var result = await _userManager.CreateAsync(user, model.Password);
+            var sigmaUser = new Docente()
+            {
+                UserId = user.Id,
+                MateriaId = model.MateriaId                
+            };
+            _sgRepo.Add(sigmaUser);
+
             if (result.Succeeded)
             {
                 var currentUser = await _userManager.FindByNameAsync(user.UserName);
@@ -85,11 +95,7 @@ namespace API.Controllers
                         throw new ApplicationException("Creating role 'Docente' failed with error(s): " + assignRoleResult.Errors);
                     }
                 }
-
-                if (await _userManager.IsInRoleAsync(user, "Docente"))
-                {
-                    var docente = (Docente)currentUser;
-                }
+                
                 await _signInManager.SignInAsync(user, false);
                 return Ok(new
                 {
@@ -102,7 +108,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
-            var user = new IdentityUser();
+            var user = new IdentityUserExt();
 
             user.UserName = model.CI;
             var result = await _userManager.CreateAsync(user, model.Password);

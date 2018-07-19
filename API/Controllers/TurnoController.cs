@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Decompiled with JetBrains decompiler
+// Type: API.Controllers.TurnoController
+// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
+// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
+
 using API.Models;
 using API.Repository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace API.Controllers
 {
-    [Produces("application/json")]
+    [Produces("application/json", new string[] { })]
     [Route("[controller]")]
     public class TurnoController : Controller
     {
@@ -17,73 +19,88 @@ namespace API.Controllers
 
         public TurnoController(IRepository<Turno> repo)
         {
-            _repo = repo;
+            this._repo = repo;
         }
 
-        // GET: api/Turno
         [HttpGet]
         public IEnumerable<Turno> Get()
         {
-            return _repo.GetAll();
+            return this._repo.GetAll();
         }
 
-        // GET: api/Turno/5
         [HttpGet("{id}", Name = "GetTurno")]
         public IActionResult Get(int id)
         {
-            var turno = _repo.GetById(id);
-            if (turno == null)
-            {
-                return NotFound();
-            }
-            return Ok(turno);
+            Turno byId = this._repo.GetById(id);
+            if (byId == null)
+                return (IActionResult)((ControllerBase)this).NotFound();
+            return (IActionResult)((ControllerBase)this).Ok((object)byId);
         }
 
-        // POST: api/Turno
         [HttpPost]
-        public IActionResult Post([FromBody]Turno value)
+        public IActionResult Post([FromBody] Turno value)
         {
             if (value == null)
+                return (IActionResult)((ControllerBase)this).BadRequest();
+            Turno turno = this._repo.Add(value);
+            return (IActionResult)((ControllerBase)this).CreatedAtRoute("GetTurno", (object)new
             {
-                return BadRequest();
-            }
-
-            var turno = _repo.Add(value);
-            return CreatedAtRoute("GetTurno", new { id = turno.Id }, turno);
+                id = turno.Id
+            }, (object)turno);
         }
 
-        // PUT: api/Turno/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody]Turno value)
+        public IActionResult Put(int id, [FromBody] Turno value)
         {
             if (value == null)
-            {
-                return BadRequest();
-            }
-
-            var turno = _repo.GetById(id);
-            if (turno == null)
-            {
-                return NotFound();
-            }
-
-            turno.Id = id;
-            _repo.Update(value);
-
-            return NoContent();
+                return (IActionResult)((ControllerBase)this).BadRequest();
+            Turno byId = this._repo.GetById(id);
+            if (byId == null)
+                return (IActionResult)((ControllerBase)this).NotFound();
+            byId.Id = id;
+            this._repo.Update(value);
+            return (IActionResult)((ControllerBase)this).NoContent();
         }
 
-        // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var turno = _repo.GetById(id);
-            if (turno == null)
-            {
-                return NotFound();
-            }
-            _repo.Delete(turno);
-            return NoContent();
+            Turno byId = this._repo.GetById(id);
+            if (byId == null)
+                return (IActionResult)((ControllerBase)this).NotFound();
+            this._repo.Delete(byId);
+            return (IActionResult)((ControllerBase)this).NoContent();
+        }
+
+        public class TurnoDto
+        {
+            public int Id { get; set; }
+
+            public string Nombre { get; set; }
+
+            public List<TurnoController.GrupoDto> Grupos { get; set; }
+        }
+
+        public class GrupoDto
+        {
+            public int Id { get; set; }
+
+            public int Grado { get; set; }
+
+            public int Anio { get; set; }
+
+            public int OrientacionId { get; set; }
+
+            public int TurnoId { get; set; }
+
+            public TurnoController.OrientacionDto Orientacion { get; set; }
+        }
+
+        public class OrientacionDto
+        {
+            public int Id { get; set; }
+
+            public string Nombre { get; set; }
         }
     }
 }

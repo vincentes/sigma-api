@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MySql.Data.MySqlClient;
 using Pomelo.EntityFrameworkCore.MySql;
 namespace API
 {
@@ -32,23 +33,32 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            MySql.Data.MySqlClient.MySqlConnectionStringBuilder connectionString = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder
+            var mysql = true;
+            if (!mysql)
             {
-                UserID = "root",
-                Server = "127.0.0.1",
-                Port = 1337,
-                Password = "root",
-                Database = "sigma"
-            };
-            services.AddDbContext<SigmaContext>(x =>
-                x.UseMySql(connectionString.ToString())
-            );
+                string connectionString = "Server=tcp:nerdish.database.windows.net,1433;Initial Catalog=sigma;Persist Security Info=False;User ID=api;Password='WH;t@qK%+We}U5qV';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+                services.AddDbContext<SigmaContext>(x => x.UseSqlServer(connectionString));
+            }
+            else
+            {
+                MySqlConnectionStringBuilder connectionString = new MySqlConnectionStringBuilder()
+                {
+                    UserID = "api",
+                    Server = "204.48.19.107",
+                    Port = 3306,
+                    Password = "DQej2zySKMwayVNf",
+                    Database = "sigma"
+                };
+                services.AddDbContext<SigmaContext>(x => MySqlDbContextOptionsExtensions.UseMySql(x, connectionString.ToString()));
+            }
             services.AddTransient<IRepository<Turno>, RTurno>();
             services.AddTransient<IRepository<Materia>, RMateria>();
             services.AddTransient<IRepository<Orientacion>, ROrientacion>();
             services.AddTransient<IRepository<Grupo>, RGrupo>();
             services.AddTransient<IUserRepository<Docente>, RDocente>();
             services.AddTransient<IRepository<GrupoDocente>, RGrupoDocente>();
+            services.AddTransient<IRepository<Tarea>, RTarea>();
+            services.AddTransient<IRepository<Imagen>, RImagen>();
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
