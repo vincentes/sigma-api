@@ -59,7 +59,8 @@ namespace API
             services.AddTransient<IRepository<GrupoDocente>, RGrupoDocente>();
             services.AddTransient<IRepository<Tarea>, RTarea>();
             services.AddTransient<IRepository<Imagen>, RImagen>();
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddTransient<IRepository<Token>, RToken>();
+            services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 options.User.RequireUniqueEmail = false;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class Admin : IdentityUser
+    public class Admin : AppUser
     {
         
     }

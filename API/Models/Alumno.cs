@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class Alumno : SigmaUser
+    public class Alumno : AppUser
     {
         public virtual Grupo Group { get; set; }
     }

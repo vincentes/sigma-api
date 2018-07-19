@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using API.Models;
@@ -13,28 +14,41 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Produces("application/json")]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     [Authorize]
     public class NotificationController : Controller
     {
-        private readonly IRepository<Materia> _repo;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IRepository<Token> _repo;
+        private readonly UserManager<AppUser> _userManager;
 
-        public NotificationController(IRepository<Materia> repo, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public NotificationController(IRepository<Token> repo, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repo = repo;
-            this._userManager = userManager;
+            _userManager = userManager;
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SaveToken(string token) {
+        public async Task<IActionResult> SaveToken([FromBody] TokenDto token) {
+            var exists = _repo.GetAll().FirstOrDefault(e => e.Content == token.Token) != null;
+            if(exists)
+            {
+                return StatusCode((int) HttpStatusCode.Conflict);
+            }
+
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            IdentityUserExt user = (IdentityUserExt) _userManager.Users.SingleOrDefault(r => r.Id == userID);
-            SigmaUser sigmaUser = user.SigmaUser;
-            sigmaUser.Tokens.Add(new Token { Content = token });
+            AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+            _repo.Add(new Token()
+            {
+                Content = token.Token
+            });
             return Ok();
+        }
+
+        public class TokenDto
+        {
+            public string Token { get; set; }
         }
     }
 }

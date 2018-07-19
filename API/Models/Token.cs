@@ -9,7 +9,6 @@ namespace API.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Content { get; set; }
-        public SigmaUser SigmaUser { get; set; }
-        public int SigmaUserId { get; set; }
+        public AppUser User { get; set; }
     }
 }
