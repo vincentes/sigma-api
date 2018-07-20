@@ -29,7 +29,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SaveToken([FromBody] TokenDto token) {
+        public IActionResult SaveToken([FromBody] TokenDto token) {
             var exists = _repo.GetAll().FirstOrDefault(e => e.Content == token.Token) != null;
             if(exists)
             {
