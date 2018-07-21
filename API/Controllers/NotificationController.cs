@@ -41,7 +41,8 @@ namespace API.Controllers
             AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
             _repo.Add(new Token()
             {
-                Content = token.Token
+                Content = token.Token,
+                User = user
             });
             return Ok();
         }

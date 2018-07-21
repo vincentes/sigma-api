@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: API.Controllers.OrientacionController
-// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
-// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
-
-using API.Models;
+﻿using API.Models;
 using API.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

@@ -1,7 +1,10 @@
 ﻿using API.Models;
 using API.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -24,6 +27,29 @@ namespace API.Controllers
             foreach (Materia materia in all)
                 materiaDtoList.Add(DtoGet(materia));
             return materiaDtoList;
+        }
+
+        [Authorize(Roles = "Docente")]
+        [HttpGet("GetDocenteMaterias")]
+        public IActionResult GetDocenteMaterias()
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var materias = _repo.GetAll().Where(m => m.Docentes.SingleOrDefault(d => d.Id == userID) != null);
+            List<ShortMateriaDto> materiasDto = new List<ShortMateriaDto>();
+            foreach (Materia materia in materias)
+            {
+                materiasDto.Add(new ShortMateriaDto()
+                {
+                    Id = materia.Id,
+                    Nombre = materia.Nombre
+                });
+            }
+
+            return Ok(new
+            {
+                Materias = materiasDto
+            });
         }
 
         [HttpGet("{id}", Name = "GetMateria")]
@@ -102,6 +128,13 @@ namespace API.Controllers
                 return NotFound();
             _repo.Delete(byId);
             return NoContent();
+        }
+
+        public class ShortMateriaDto
+        {
+            public int Id { get; set; }
+
+            public string Nombre { get; set; }
         }
 
         public class MateriaDto

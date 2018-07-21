@@ -1,7 +1,11 @@
 ﻿using API.Models;
 using API.Repository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -9,11 +13,17 @@ namespace API.Controllers
     [Route("[controller]")]
     public class TareaController : Controller
     {
+        private readonly IRepository<Imagen> _repoImage;
+        private readonly IRepository<TareaImagen> _repoTI;
         private readonly IRepository<Tarea> _repo;
+        private readonly UserManager<AppUser> _userManager;
 
-        public TareaController(IRepository<Tarea> repo)
+        public TareaController(IRepository<Tarea> repo, IRepository<Imagen> repoImage, IRepository<TareaImagen> repoTI,  UserManager<AppUser> userManager)
         {
-            this._repo = repo;
+            _repo = repo;
+            _repoImage = repoImage;
+            _repoTI = repoTI;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -31,33 +41,57 @@ namespace API.Controllers
         {
             Tarea byId = this._repo.GetById(id);
             if (byId == null)
-                return (IActionResult)((ControllerBase)this).NotFound();
-            return (IActionResult)((ControllerBase)this).Ok((object)this.DtoGet(byId));
+                return NotFound();
+            return Ok(DtoGet(byId));
         }
 
-        public TareaController.TareaDto DtoGet(Tarea tarea)
+        public TareaDto DtoGet(Tarea tarea)
         {
-            TareaController.TareaDto tareaDto = new TareaController.TareaDto();
+            TareaDto tareaDto = new TareaDto();
             tareaDto.Id = tarea.Id;
             tareaDto.DocenteId = tarea.DocenteId;
             tareaDto.MateriaId = tarea.MateriaId;
             tareaDto.Contenido = tarea.Contenido;
-            tareaDto.ImageUrls = new List<string>();
+            tareaDto.ImageIds = new List<int>();
             foreach (TareaImagen tareaImagen in tarea.TareaImagen)
-                tareaDto.ImageUrls.Add(tareaImagen.Imagen.Url);
+                tareaDto.ImageIds.Add(tareaImagen.Imagen.Id);
             return tareaDto;
         }
 
+        [Authorize(Roles = "Docente")]
         [HttpPost]
-        public IActionResult Post([FromBody] Tarea value)
+        public IActionResult Post([FromBody] TareaDto value)
         {
             if (value == null)
-                return (IActionResult)((ControllerBase)this).BadRequest();
-            Tarea tarea = this._repo.Add(value);
-            return (IActionResult)((ControllerBase)this).CreatedAtRoute("GetTarea", (object)new
+                return BadRequest();
+
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+
+            Tarea tarea = new Tarea()
+            {
+                Contenido = value.Contenido,
+                Docente = (Docente) user,
+                MateriaId = value.MateriaId
+            };
+
+            List<TareaImagen> imagenes = new List<TareaImagen>();
+            foreach(int id in value.ImageIds)
+            {
+                TareaImagen tareaImagen= new TareaImagen()
+                {
+                    ImagenId = id,
+                    Tarea = tarea
+                };
+            }
+
+            tarea.TareaImagen = imagenes;
+            _repo.Add(tarea);
+            return CreatedAtRoute("GetTarea", (object)new
             {
                 id = tarea.Id
-            }, (object)tarea);
+            }, tarea);
         }
 
         [HttpPut("{id}")]
@@ -86,8 +120,7 @@ namespace API.Controllers
         public class TareaDto
         {
             public int Id { get; set; }
-
-            public List<string> ImageUrls { get; set; }
+            public List<int> ImageIds { get; set; }
 
             public string DocenteId { get; set; }
 

@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: API.Repository.RToken
-// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
-// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
-
-using API.Models;
+﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
@@ -26,10 +20,9 @@ namespace API.Repository
 
         public Token Add(Token item)
         {
-            EntityEntry<Token> entityEntry = this._context.Add<Token>(item);
-            this._context.SaveChanges();
-            item.Id = entityEntry.Entity.Id;
-            return item;
+            var entityEntry = _context.Add(item);
+            _context.SaveChanges();
+            return entityEntry.Entity;
         }
 
         public void Delete(Token item)

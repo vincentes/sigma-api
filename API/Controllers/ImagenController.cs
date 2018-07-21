@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: API.Controllers.ImagenController
-// Assembly: API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 4B418147-8FFB-41A2-8EEF-9BE2FCA642AC
-// Assembly location: C:\Users\micro\Documents\decompiling\API.dll
-
-using API.Models;
+﻿using API.Models;
 using API.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -62,16 +56,18 @@ namespace API.Controllers
         {
             if (file == null)
                 return BadRequest();
-            string path2 = string.Format("Images\\{0}\\{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, (object)(DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".jpeg"));
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path2);
-            _repo.Add(new Imagen() { Url = path2 });
+            string subPath = string.Format("Images\\{0}\\{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".jpeg");
+            string absolutePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subPath);
+            int imageId = _repo.Add(new Imagen() { Url = subPath }).Id;
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 file.CopyTo(memoryStream);
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
-                System.IO.File.WriteAllBytes(path, memoryStream.ToArray());
+                Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
+                System.IO.File.WriteAllBytes(absolutePath, memoryStream.ToArray());
             }
-            return Ok();
+            return Ok(new {
+                Id = imageId
+            });
         }
 
         public ImagenDto DtoGet(Imagen imagen)
