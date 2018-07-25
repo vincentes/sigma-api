@@ -116,6 +116,15 @@ namespace API.Models
                 .WithMany(p => p.TareaImagen)
                 .HasForeignKey(d => d.TareaId);
 
+            builder.Entity<Tarea>()
+                .HasOne(d => d.Materia)
+                .WithMany(p => p.Tareas)
+                .HasForeignKey(d => d.MateriaId);
+
+            builder.Entity<Tarea>()
+                .HasOne(d => d.Docente)
+                .WithMany(p => p.Tareas)
+                .HasForeignKey(d => d.DocenteId);
 
             builder.Entity<AppUser>()
                 .HasMany(d => d.Token)

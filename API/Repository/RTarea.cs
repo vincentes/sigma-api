@@ -29,7 +29,9 @@ namespace API.Repository
     
             var entityEntry = _context.Add(item);
             _context.SaveChanges();
-            return entityEntry.Entity;
+            var excludeDocenteEntity = entityEntry.Entity;
+            excludeDocenteEntity.Docente = null;
+            return excludeDocenteEntity;
         }
 
         public void Delete(Tarea item)
@@ -40,12 +42,12 @@ namespace API.Repository
 
         public IEnumerable<Tarea> GetAll()
         {
-            return (IEnumerable<Tarea>)((IIncludableQueryable<Tarea, IEnumerable<TareaImagen>>)this._context.Tareas.Include<Tarea, List<TareaImagen>>((Expression<Func<Tarea, List<TareaImagen>>>)(t => t.TareaImagen))).ThenInclude<Tarea, TareaImagen, Imagen>((Expression<Func<TareaImagen, Imagen>>)(x => x.Imagen)).Include<Tarea, Docente>((Expression<Func<Tarea, Docente>>)(t => t.Docente)).Include<Tarea, Materia>((Expression<Func<Tarea, Materia>>)(t => t.Materia)).ToList<Tarea>();
+            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia).ToList();
         }
 
         public Tarea GetById(int id)
         {
-            return ((IIncludableQueryable<Tarea, IEnumerable<TareaImagen>>)this._context.Tareas.Include<Tarea, List<TareaImagen>>((Expression<Func<Tarea, List<TareaImagen>>>)(t => t.TareaImagen))).ThenInclude<Tarea, TareaImagen, Imagen>((Expression<Func<TareaImagen, Imagen>>)(x => x.Imagen)).Include<Tarea, Docente>((Expression<Func<Tarea, Docente>>)(t => t.Docente)).Include<Tarea, Materia>((Expression<Func<Tarea, Materia>>)(t => t.Materia)).SingleOrDefault<Tarea>((Expression<Func<Tarea, bool>>)(x => x.Id == id));
+            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia).SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Tarea item)

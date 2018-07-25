@@ -3,8 +3,10 @@ using API.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 
 namespace API.Controllers
@@ -13,33 +15,29 @@ namespace API.Controllers
     [Route("[controller]")]
     public class TareaController : Controller
     {
-        private readonly IRepository<Imagen> _repoImage;
-        private readonly IRepository<TareaImagen> _repoTI;
         private readonly IRepository<Tarea> _repo;
         private readonly UserManager<AppUser> _userManager;
 
-        public TareaController(IRepository<Tarea> repo, IRepository<Imagen> repoImage, IRepository<TareaImagen> repoTI,  UserManager<AppUser> userManager)
+        public TareaController(IRepository<Tarea> repo,  UserManager<AppUser> userManager)
         {
             _repo = repo;
-            _repoImage = repoImage;
-            _repoTI = repoTI;
             _userManager = userManager;
         }
 
         [HttpGet]
-        public IEnumerable<TareaController.TareaDto> Get()
+        public IEnumerable<TareaDto> Get()
         {
             IEnumerable<Tarea> all = this._repo.GetAll();
-            List<TareaController.TareaDto> tareaDtoList = new List<TareaController.TareaDto>();
+            List<TareaDto> tareaDtoList = new List<TareaDto>();
             foreach (Tarea tarea in all)
                 tareaDtoList.Add(this.DtoGet(tarea));
-            return (IEnumerable<TareaController.TareaDto>)tareaDtoList;
+            return tareaDtoList;
         }
 
         [HttpGet("{id}", Name = "GetTarea")]
         public IActionResult Get(int id)
         {
-            Tarea byId = this._repo.GetById(id);
+            Tarea byId = _repo.GetById(id);
             if (byId == null)
                 return NotFound();
             return Ok(DtoGet(byId));
@@ -47,20 +45,22 @@ namespace API.Controllers
 
         public TareaDto DtoGet(Tarea tarea)
         {
-            TareaDto tareaDto = new TareaDto();
-            tareaDto.Id = tarea.Id;
-            tareaDto.DocenteId = tarea.DocenteId;
-            tareaDto.MateriaId = tarea.MateriaId;
-            tareaDto.Contenido = tarea.Contenido;
-            tareaDto.ImageIds = new List<int>();
+            TareaDto tareaDto = new TareaDto
+            {
+                Id = tarea.Id,
+                DocenteId = tarea.DocenteId,
+                MateriaId = tarea.MateriaId,
+                Contenido = tarea.Contenido,
+                ImageIds = new List<int>()
+            };
             foreach (TareaImagen tareaImagen in tarea.TareaImagen)
-                tareaDto.ImageIds.Add(tareaImagen.Imagen.Id);
+                tareaDto.ImageIds.Add(tareaImagen.ImagenId);
             return tareaDto;
         }
 
         [Authorize(Roles = "Docente")]
         [HttpPost]
-        public IActionResult Post([FromBody] TareaDto value)
+        public IActionResult Post([FromBody] PostTareaDto value)
         {
             if (value == null)
                 return BadRequest();
@@ -84,14 +84,19 @@ namespace API.Controllers
                     ImagenId = id,
                     Tarea = tarea
                 };
+
+                imagenes.Add(tareaImagen);
             }
 
             tarea.TareaImagen = imagenes;
-            _repo.Add(tarea);
-            return CreatedAtRoute("GetTarea", (object)new
+            Tarea addTarea = _repo.Add(tarea);
+            return CreatedAtRoute("GetTarea", new
             {
-                id = tarea.Id
-            }, tarea);
+                id = addTarea.Id
+            }, new
+            {
+                Tarea = DtoGet(addTarea)
+            });
         }
 
         [HttpPut("{id}")]
@@ -120,9 +125,19 @@ namespace API.Controllers
         public class TareaDto
         {
             public int Id { get; set; }
+
             public List<int> ImageIds { get; set; }
 
             public string DocenteId { get; set; }
+
+            public int MateriaId { get; set; }
+
+            public string Contenido { get; set; }
+        }
+
+        public class PostTareaDto
+        {
+            public List<int> ImageIds { get; set; }
 
             public int MateriaId { get; set; }
 
