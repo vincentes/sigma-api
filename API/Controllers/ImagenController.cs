@@ -52,21 +52,26 @@ namespace API.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Upload(IFormFile file)
+        public IActionResult Upload()
         {
-            if (file == null)
-                return BadRequest();
-            string subPath = string.Format("Images/{0}/{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, DateTime.Now.ToString("yyyy-mm-dd-hh-mm-ss") + ".jpeg");
-            string absolutePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subPath);
-            int imageId = _repo.Add(new Imagen() { Url = subPath }).Id;
-            using (MemoryStream memoryStream = new MemoryStream())
+            IFormFileCollection files = Request.Form.Files;
+            List<int> ids = new List<int>();
+            foreach(IFormFile file in files)
             {
-                file.CopyTo(memoryStream);
-                Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
-                System.IO.File.WriteAllBytes(absolutePath, memoryStream.ToArray());
+                string subPath = string.Format("Images/{0}/{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, DateTime.Now.ToString("yyyy-MMM-dd-hh-mm-ss") + ".jpeg");
+                string absolutePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subPath);
+                int imageId = _repo.Add(new Imagen() { Url = subPath }).Id;
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    file.CopyTo(memoryStream);
+                    Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
+                    System.IO.File.WriteAllBytes(absolutePath, memoryStream.ToArray());
+                }
+                ids.Add(imageId);
             }
+
             return Ok(new {
-                Id = imageId
+                Ids = ids.ToArray()
             });
         }
 
