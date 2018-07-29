@@ -46,7 +46,8 @@ namespace API.Repository
         {
             Imagen byId = this.GetById(item.Id);
             byId.Id = item.Id;
-            this._context.Update<Imagen>(byId);
+            byId.Url = item.Url;
+            this._context.Update(byId);
             this._context.SaveChanges();
         }
     }

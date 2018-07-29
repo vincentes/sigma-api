@@ -58,16 +58,18 @@ namespace API.Controllers
             List<int> ids = new List<int>();
             foreach(IFormFile file in files)
             {
-                string subPath = string.Format("Images/{0}/{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, DateTime.Now.ToString("yyyy-MMM-dd-hh-mm-ss") + ".jpeg");
+                Imagen imagen = _repo.Add(new Imagen());
+                string subPath = string.Format("Images/{0}/{1}", User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value, imagen.Id + ".jpeg");
                 string absolutePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subPath);
-                int imageId = _repo.Add(new Imagen() { Url = subPath }).Id;
+                imagen.Url = subPath;
+                _repo.Update(imagen);
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     file.CopyTo(memoryStream);
                     Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
                     System.IO.File.WriteAllBytes(absolutePath, memoryStream.ToArray());
                 }
-                ids.Add(imageId);
+                ids.Add(imagen.Id);
             }
 
             return Ok(new {
