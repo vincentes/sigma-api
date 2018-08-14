@@ -11,7 +11,7 @@ namespace API.Repository
 
         public GrupoController(IRepository<Grupo> repo)
         {
-            this._repo = repo;
+            _repo = repo;
         }
 
         [HttpGet]
@@ -40,12 +40,12 @@ namespace API.Repository
                 Id = grupo.Id,
                 Anio = grupo.Anio,
                 Grado = grupo.Grado,
-                Orientacion = new GrupoController.OrientacionDto()
+                Orientacion = new OrientacionDto()
                 {
                     Id = grupo.Orientacion.Id,
                     Nombre = grupo.Orientacion.Nombre
                 },
-                Turno = new GrupoController.TurnoDto()
+                Turno = new TurnoDto()
                 {
                     Id = grupo.Turno.Id,
                     Nombre = grupo.Turno.Nombre

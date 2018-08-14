@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using API.Models;
+using API.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -25,17 +26,19 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUserRepository<Docente> _docenteManager;
         private readonly IConfiguration _configuration;
         private readonly string[] _roles;
 
         public AccountController(UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+            SignInManager<AppUser> signInManager, IUserRepository<Docente> docenteManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _roles = new string[3];
             _roles[0] = "Admin";
             _roles[1] = "Alumno";
             _roles[2] = "Docente";
             _signInManager = signInManager;
+            _docenteManager = docenteManager;
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
@@ -44,11 +47,12 @@ namespace API.Controllers
         [HttpPost]
         public async Task<object> Login([FromBody]LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.CI, model.Password, false, false);
-            if (result.Succeeded)
+            var login = await _signInManager.PasswordSignInAsync(model.CI, model.Password, false, false);
+            if (login.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.CI);
                 var roles = await _userManager.GetRolesAsync(appUser);
+
                 return Ok(new {
                     Token = await GenerateJwtToken(model.CI, appUser),
                     Roles = roles
@@ -91,7 +95,9 @@ namespace API.Controllers
                 if (await _userManager.IsInRoleAsync(user, "Docente"))
                 {
                     var docente = (Docente)currentUser;
+                    _docenteManager.Add(docente);
                 }
+
                 await _signInManager.SignInAsync(user, false);
                 return Ok(new
                 {

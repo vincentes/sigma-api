@@ -30,7 +30,7 @@ namespace API.Models
 
         public virtual DbSet<Tarea> Tareas { get; set; }
         public virtual DbSet<Token> Tokens { get; set; }
-        public virtual DbSet<AppUser> Users { get; set; }
+        public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
 
         public SigmaContext(DbContextOptions options) : base(options)
         {
@@ -55,6 +55,7 @@ namespace API.Models
             builder.Entity<Tarea>().HasKey(e => e.Id);
             builder.Entity<GrupoDocente>().HasKey(e => e.Id);
             builder.Entity<Token>().HasKey(e => e.Id);
+            builder.Entity<TareaGrupo>().HasKey(e => e.Id);
 
             builder.Entity<Grupo>()
                 .HasOne(d => d.Orientacion)
@@ -129,6 +130,16 @@ namespace API.Models
             builder.Entity<AppUser>()
                 .HasMany(d => d.Token)
                 .WithOne(p => p.User);
+
+            builder.Entity<TareaGrupo>()
+                .HasOne(d => d.Tarea)
+                .WithMany(p => p.TareaGrupos)
+                .HasForeignKey(d => d.TareaId);
+
+            builder.Entity<TareaGrupo>()
+                .HasOne(d => d.Grupo)
+                .WithMany(p => p.TareaGrupo)
+                .HasForeignKey(d => d.GrupoId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

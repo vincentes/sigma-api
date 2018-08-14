@@ -21,5 +21,7 @@ namespace API.Models
         public Docente Docente { get; set; }
 
         public Materia Materia { get; set; }
+
+        public List<TareaGrupo> TareaGrupos { get; set; }
     }
 }

@@ -14,20 +14,20 @@ namespace API.Repository
 
         public RGrupoDocente(SigmaContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public GrupoDocente Add(GrupoDocente item)
         {
-            EntityEntry<GrupoDocente> entityEntry = this._context.Add<GrupoDocente>(item);
-            this._context.SaveChanges();
+            EntityEntry<GrupoDocente> entityEntry = _context.Add<GrupoDocente>(item);
+            _context.SaveChanges();
             item.Id = entityEntry.Entity.Id;
             return item;
         }
 
         public void Delete(GrupoDocente item)
         {
-            this._context.Remove<GrupoDocente>(item);
+            this._context.Remove(item);
             this._context.SaveChanges();
         }
 

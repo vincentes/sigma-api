@@ -57,6 +57,7 @@ namespace API
             services.AddTransient<IRepository<Grupo>, RGrupo>();
             services.AddTransient<IUserRepository<Docente>, RDocente>();
             services.AddTransient<IRepository<GrupoDocente>, RGrupoDocente>();
+            services.AddTransient<IRepository<TareaGrupo>, RTareaGrupo>();
             services.AddTransient<IRepository<Tarea>, RTarea>();
             services.AddTransient<IRepository<Imagen>, RImagen>();
             services.AddTransient<IRepository<Token>, RToken>();

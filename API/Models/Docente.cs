@@ -14,7 +14,6 @@ namespace API.Models
         public virtual ICollection<Grupo> Grupos { get; set; }
         public virtual ICollection<GrupoDocente> GrupoDocentes { get; set; }
         public virtual Materia Materia { get; set; }
-
         public virtual ICollection<Tarea> Tareas { get; set; }
     }
 }

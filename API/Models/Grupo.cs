@@ -28,5 +28,7 @@ namespace API.Models
         public virtual Turno Turno { get; set; }
 
         public virtual ICollection<GrupoDocente> GrupoDocentes { get; set; }
+        public virtual ICollection<TareaGrupo> TareaGrupo { get; set; }
+
     }
 }

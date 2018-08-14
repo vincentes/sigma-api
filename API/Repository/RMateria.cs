@@ -40,7 +40,7 @@ namespace API.Repository
 
         public Materia GetById(int id)
         {
-            return ((IIncludableQueryable<Materia, IEnumerable<MateriaOrientacion>>)((IIncludableQueryable<Materia, IEnumerable<MateriaOrientacion>>)this._context.Materias.Include<Materia, ICollection<MateriaOrientacion>>((Expression<Func<Materia, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Materia, MateriaOrientacion, ICollection<Grupo>>((Expression<Func<MateriaOrientacion, ICollection<Grupo>>>)(x => x.Orientacion.Grupos)).Include<Materia, ICollection<MateriaOrientacion>>((Expression<Func<Materia, ICollection<MateriaOrientacion>>>)(t => t.MateriaOrientacion))).ThenInclude<Materia, MateriaOrientacion, ICollection<Docente>>((Expression<Func<MateriaOrientacion, ICollection<Docente>>>)(x => x.Materia.Docentes)).Include<Materia, ICollection<Docente>>((Expression<Func<Materia, ICollection<Docente>>>)(t => t.Docentes)).SingleOrDefault<Materia>((Expression<Func<Materia, bool>>)(x => x.Id == id));
+            return _context.Materias.Include(t => t.MateriaOrientacion).ThenInclude(x => x.Orientacion.Grupos).Include(t => t.MateriaOrientacion).ThenInclude(x => x.Materia.Docentes).Include(t => t.Docentes).SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Materia item)

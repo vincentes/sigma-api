@@ -3,6 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace API.Repository
 {
@@ -31,12 +35,18 @@ namespace API.Repository
 
         public IEnumerable<Docente> GetAll()
         {
-            return _context.Docentes.ToList();
+            return _context.Docentes
+                    .Include(t => t.GrupoDocentes)
+                        .ThenInclude(x => x.Grupo)
+                    .ToList();
         }
         
         public Docente GetById(string id)
         {
-            return _context.Docentes.SingleOrDefault(x => x.Id == id);
+            return _context.Docentes
+                .Include(t => t.GrupoDocentes)
+                    .ThenInclude(x => x.Grupo)
+                .SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Docente item)
@@ -44,6 +54,7 @@ namespace API.Repository
             var docente = GetById(item.Id);
             docente.Email = item.Email;
             docente.MateriaId = item.MateriaId;
+            docente.GrupoDocentes = item.GrupoDocentes;
             _context.Update(docente);
             _context.SaveChanges();
         }

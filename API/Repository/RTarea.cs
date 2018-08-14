@@ -47,7 +47,12 @@ namespace API.Repository
 
         public Tarea GetById(int id)
         {
-            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia).SingleOrDefault(x => x.Id == id);
+            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia)
+                .Include(t => t.TareaGrupos)
+                    .ThenInclude(p => p.Grupo)
+                .Include(t => t.TareaGrupos)
+                    .ThenInclude(p => p.Tarea)
+                .SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Tarea item)
