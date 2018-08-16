@@ -1,0 +1,132 @@
+﻿using API.Models;
+using API.Repository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+
+namespace API.Controllers
+{
+    [Produces("application/json", new string[] { })]
+    [Route("[controller]/[action]")]
+    [Authorize(Roles = "Docente")]
+    public class ParcialController : Controller
+    {
+        private readonly IRepository<Parcial> _repo;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IRepository<Grupo> _grupos;
+
+        public ParcialController(IRepository<Parcial> repo, IRepository<Grupo> grupos, UserManager<AppUser> userManager)
+        {
+            _repo = repo;
+            _userManager = userManager;
+            _grupos = grupos;
+        }
+
+        [HttpGet]
+        public IEnumerable<ParcialDto> Get()
+        {
+            IEnumerable<Parcial> all = this._repo.GetAll();
+            List<ParcialDto> parcialList = new List<ParcialDto>();
+            foreach (Parcial parcial in all)
+                parcialList.Add(DtoGet(parcial));
+            return parcialList;
+        }
+
+        public ParcialDto DtoGet(Parcial parcial)
+        {
+            ParcialDto parcialDto = new ParcialDto
+            {
+                Id = parcial.Id,
+                DocenteId = parcial.DocenteId,
+                MateriaId = parcial.MateriaId,
+                Temas = parcial.Temas,
+                GruposAsignados = new List<GrupoDto>()
+            };
+
+            foreach(ParcialGrupo grupo in parcial.GruposAsignados)
+            {
+                parcialDto.GruposAsignados.Add(new GrupoDto
+                {
+                    Id = grupo.Grupo.Id,
+                    Anio = grupo.Grupo.Anio,
+                    Grado = grupo.Grupo.Grado
+                });
+            }
+
+            return parcialDto;
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] PostParcialDto parcial)
+        {
+            if (parcial == null)
+                return BadRequest();
+
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+
+            Parcial parcialObject = new Parcial
+            {
+                Temas = parcial.Temas,
+                DocenteId = user.Id,
+                MateriaId = parcial.MateriaId
+            };
+
+            foreach(GrupoDto grupoAsignado in parcial.GruposAsignados)
+            {
+                Grupo grupo = _grupos.GetById(grupoAsignado.Id);
+                parcialObject.GruposAsignados.Add(new ParcialGrupo
+                {
+                    Date = parcial.Date,
+                    GrupoId = grupoAsignado.Id,
+                    Parcial = parcialObject
+                });
+            }
+
+            // crear get parcial {id} just do it man!!!!!!!
+            Parcial addParcial = _repo.Add(parcialObject);
+            return CreatedAtRoute("GetParcial", new
+            {
+                id = addParcial.Id
+            }, new
+            {
+                Parcial = DtoGet(addParcial)
+            });
+        }
+
+        public class PostParcialDto
+        {
+            public int Id { get; set; }
+            public int MateriaId { get; set; }
+            public string Temas { get; set; }
+            public DateTime Date { get; set; }
+            public List<GrupoDto> GruposAsignados { get; set; }
+        }
+
+        public class ParcialDto
+        {
+            public int Id { get; set; }
+            public string DocenteId { get; set; }
+            public int MateriaId { get; set; }
+            public string Temas { get; set; }
+            public List<GrupoDto> GruposAsignados { get; set; }
+        }
+
+        public class GrupoDto
+        {
+            public int Id { get; set; }
+
+            public int Grado { get; set; }
+
+            public int Anio { get; set; }
+        }
+    }
+
+}

@@ -19,13 +19,15 @@ namespace API.Controllers
         private readonly IRepository<Tarea> _repo;
         private readonly IRepository<TareaGrupo> _assignments;
         private readonly IRepository<Grupo> _grupos;
+        private readonly IUserRepository<Alumno> _alumnos;
         private readonly UserManager<AppUser> _userManager;
-        public TareaController(IRepository<Tarea> repo, IRepository<Grupo> grupos, IRepository<TareaGrupo> assignments,  UserManager<AppUser> userManager)
+        public TareaController(IRepository<Tarea> repo, IUserRepository<Alumno> alumnos, IRepository<Grupo> grupos, IRepository<TareaGrupo> assignments,  UserManager<AppUser> userManager)
         {
             _repo = repo;
             _userManager = userManager;
             _assignments = assignments;
             _grupos = grupos;
+            _alumnos = alumnos;
         }
 
         [HttpGet]
@@ -77,6 +79,41 @@ namespace API.Controllers
             if (byId == null)
                 return NotFound();
             return Ok(DtoGet(byId));
+        }
+
+        [Authorize(Roles = "Alumno")]
+        [HttpGet]
+        public IActionResult GetAssignedDeberes()
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            AppUser appUser = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+            Alumno alumno = _alumnos.GetById(appUser.Id);
+
+            List<TareaDto> tareas = new List<TareaDto>();
+            foreach(TareaGrupo tg in alumno.Grupo.TareaGrupo)
+            {
+                TareaDto tarea = new TareaDto
+                {
+                    Id = tg.Tarea.Id,
+                    Contenido = tg.Tarea.Contenido,
+                    DocenteId = tg.Tarea.DocenteId,
+                    MateriaId = tg.Tarea.MateriaId,
+                    ImageIds = new List<int>()
+                };
+                
+                foreach(TareaImagen ti in tg.Tarea.TareaImagen)
+                {
+                    tarea.ImageIds.Add(ti.ImagenId);
+                }
+
+                tareas.Add(tarea);
+            }
+
+            return Ok(new GetAssignedDeberesDto
+            {
+                Deberes = tareas
+            });
         }
 
         [HttpGet("{id}", Name = "GetAssignedGrupos")]
@@ -180,6 +217,11 @@ namespace API.Controllers
         public class GetAssignedGruposDto
         {
             public List<AssignmentDto> Assignments { get; set; }
+        }
+
+        public class GetAssignedDeberesDto
+        {
+            public List<TareaDto> Deberes { get; set; }
         }
 
         public class AssignmentDto

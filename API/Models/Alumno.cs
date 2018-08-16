@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,6 +8,8 @@ namespace API.Models
 {
     public class Alumno : AppUser
     {
-        public virtual Grupo Group { get; set; }
+        public virtual int GrupoId { get; set; }
+        [ForeignKey("GrupoId")]
+        public virtual Grupo Grupo { get; set; }
     }
 }

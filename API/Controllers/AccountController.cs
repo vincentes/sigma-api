@@ -61,6 +61,47 @@ namespace API.Controllers
             return Unauthorized();
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterAlumno([FromBody] RegisterAlumnoDto model)
+        {
+            var user = new Alumno();
+            user.UserName = model.CI;
+            user.GrupoId = model.GrupoId;
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                var currentUser = await _userManager.FindByNameAsync(user.UserName);
+                foreach (var item in _roles)
+                {
+                    if (!await _roleManager.RoleExistsAsync(item))
+                    {
+                        var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(item));
+                        if (!createRoleResult.Succeeded)
+                        {
+                            throw new ApplicationException("Creating role " + item + "failed with error(s): " + createRoleResult.Errors);
+                        }
+                    }
+                }
+
+                if (!await _userManager.IsInRoleAsync(user: user, role: "Alumno"))
+                {
+                    var assignRoleResult = await _userManager.AddToRoleAsync(user, "Alumno");
+                    if (!assignRoleResult.Succeeded)
+                    {
+                        throw new ApplicationException("Creating role 'Alumno' failed with error(s): " + assignRoleResult.Errors);
+                    }
+                }
+
+                await _signInManager.SignInAsync(user, false);
+                return Ok(new
+                {
+                    Token = await GenerateJwtToken(model.CI, user)
+                });
+            }
+            return StatusCode((int)HttpStatusCode.Conflict);
+        }
+
         [HttpPost]
         public async Task<IActionResult> RegisterDocente([FromBody] RegisterDocenteDto model)
         {
@@ -192,6 +233,17 @@ namespace API.Controllers
         public string Password { get; set; }
         [Required]
         public string Role { get; set; }
+    }
+
+    public class RegisterAlumnoDto
+    {
+        [Required]
+        public string CI { get; set; }
+        [Required]
+        [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
+        public string Password { get; set; }
+        [Required]
+        public int GrupoId { get; set; }
     }
 
     public class RegisterDocenteDto
