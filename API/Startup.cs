@@ -62,6 +62,8 @@ namespace API
             services.AddTransient<IUserRepository<Alumno>, RAlumno>();
             services.AddTransient<IRepository<Imagen>, RImagen>();
             services.AddTransient<IRepository<Token>, RToken>();
+            services.AddTransient<IRepository<Parcial>, RParcial>();
+            services.AddTransient<IRepository<Escrito>, REscrito>();
             services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

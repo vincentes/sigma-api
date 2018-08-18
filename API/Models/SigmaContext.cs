@@ -33,6 +33,7 @@ namespace API.Models
         public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
+        public virtual DbSet<Escrito> Escritos { get; set; }
 
         public SigmaContext(DbContextOptions options) : base(options)
         {

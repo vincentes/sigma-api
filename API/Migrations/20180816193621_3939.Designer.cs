@@ -3,59 +3,21 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    partial class SigmaContextModelSnapshot : ModelSnapshot
+    [Migration("20180816193621_3939")]
+    partial class _3939
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.0-rtm-30799")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("API.Models.Escrito", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("DocenteId");
-
-                    b.Property<int>("MateriaId");
-
-                    b.Property<string>("Temas");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocenteId");
-
-                    b.HasIndex("MateriaId");
-
-                    b.ToTable("Escritos");
-                });
-
-            modelBuilder.Entity("API.Models.EscritoGrupo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<int>("EscritoId");
-
-                    b.Property<int>("GrupoId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EscritoId");
-
-                    b.HasIndex("GrupoId");
-
-                    b.ToTable("EscritoGrupo");
-                });
 
             modelBuilder.Entity("API.Models.Grupo", b =>
                 {
@@ -490,31 +452,6 @@ namespace API.Migrations
                     b.ToTable("Docente");
 
                     b.HasDiscriminator().HasValue("Docente");
-                });
-
-            modelBuilder.Entity("API.Models.Escrito", b =>
-                {
-                    b.HasOne("API.Models.Docente", "Docente")
-                        .WithMany()
-                        .HasForeignKey("DocenteId");
-
-                    b.HasOne("API.Models.Materia", "Materia")
-                        .WithMany()
-                        .HasForeignKey("MateriaId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("API.Models.EscritoGrupo", b =>
-                {
-                    b.HasOne("API.Models.Escrito", "Escrito")
-                        .WithMany("GruposAsignados")
-                        .HasForeignKey("EscritoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("API.Models.Grupo", "Grupo")
-                        .WithMany()
-                        .HasForeignKey("GrupoId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("API.Models.Grupo", b =>

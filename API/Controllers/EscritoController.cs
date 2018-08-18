@@ -15,13 +15,13 @@ namespace API.Controllers
     [Produces("application/json", new string[] { })]
     [Route("[controller]/[action]")]
     [Authorize(Roles = "Docente, Alumno")]
-    public class ParcialController : Controller
+    public class EscritoController : Controller
     {
-        private readonly IRepository<Parcial> _repo;
+        private readonly IRepository<Escrito> _repo;
         private readonly UserManager<AppUser> _userManager;
         private readonly IRepository<Grupo> _grupos;
 
-        public ParcialController(IRepository<Parcial> repo, IRepository<Grupo> grupos, UserManager<AppUser> userManager)
+        public EscritoController(IRepository<Escrito> repo, IRepository<Grupo> grupos, UserManager<AppUser> userManager)
         {
             _repo = repo;
             _userManager = userManager;
@@ -29,40 +29,40 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<GetParcialDto> Get()
+        public IEnumerable<GetEscritoDto> Get()
         {
-            IEnumerable<Parcial> all = this._repo.GetAll();
-            List<GetParcialDto> parcialList = new List<GetParcialDto>();
-            foreach (Parcial parcial in all)
-                parcialList.Add(DtoGet(parcial));
-            return parcialList;
+            IEnumerable<Escrito> all = this._repo.GetAll();
+            List<GetEscritoDto> escritoList = new List<GetEscritoDto>();
+            foreach (Escrito escrito in all)
+                escritoList.Add(DtoGet(escrito));
+            return escritoList;
         }
 
 
-        [HttpGet("{id}", Name = "GetParcial")]
+        [HttpGet("{id}", Name = "GetEscrito")]
         public IActionResult Get(int id)
         {
-            Parcial byId = _repo.GetById(id);
+            Escrito byId = _repo.GetById(id);
             if (byId == null)
                 return NotFound();
             return Ok(DtoGet(byId));
         }
 
-        public GetParcialDto DtoGet(Parcial parcial)
+        public GetEscritoDto DtoGet(Escrito escrito)
         {
-            GetParcialDto parcialDto = new GetParcialDto
+            GetEscritoDto escritoDto = new GetEscritoDto
             {
-                Id = parcial.Id,
-                DocenteId = parcial.DocenteId,
-                MateriaId = parcial.MateriaId,
-                Temas = parcial.Temas,
-                Fecha = parcial.GruposAsignados.ElementAt(0).Date,
+                Id = escrito.Id,
+                DocenteId = escrito.DocenteId,
+                MateriaId = escrito.MateriaId,
+                Temas = escrito.Temas,
+                Fecha = escrito.GruposAsignados.ElementAt(0).Date,
                 GruposAsignados = new List<GrupoDto>()
             };
 
-            foreach(ParcialGrupo grupo in parcial.GruposAsignados)
+            foreach(EscritoGrupo grupo in escrito.GruposAsignados)
             {
-                parcialDto.GruposAsignados.Add(new GrupoDto
+                escritoDto.GruposAsignados.Add(new GrupoDto
                 {
                     Id = grupo.Grupo.Id,
                     Anio = grupo.Grupo.Anio,
@@ -71,23 +71,23 @@ namespace API.Controllers
                 });
             }
 
-            return parcialDto;
+            return escritoDto;
         }
 
         [HttpGet]
-        public IEnumerable<GetParcialDto> GetDocenteParciales()
+        public IEnumerable<GetEscritoDto> GetDocenteEscritos()
         {
-            IEnumerable<Parcial> all = this._repo.GetAll();
+            IEnumerable<Escrito> all = this._repo.GetAll();
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
 
-            List<GetParcialDto> output = new List<GetParcialDto>();
-            foreach(Parcial parcial in all)
+            List<GetEscritoDto> output = new List<GetEscritoDto>();
+            foreach(Escrito escrito in all)
             {
-                if(parcial.DocenteId == user.Id)
+                if(escrito.DocenteId == user.Id)
                 {
-                    output.Add(DtoGet(parcial));
+                    output.Add(DtoGet(escrito));
                 }
             }
 
@@ -95,21 +95,21 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<GetParcialDto> GetAlumnoParciales()
+        public IEnumerable<GetEscritoDto> GetAlumnoEscritos()
         {
-            IEnumerable<Parcial> all = this._repo.GetAll();
+            IEnumerable<Escrito> all = this._repo.GetAll();
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             Alumno user = (Alumno) _userManager.Users.SingleOrDefault(r => r.Id == userID);
 
-            List<GetParcialDto> output = new List<GetParcialDto>();
-            foreach (Parcial parcial in all)
+            List<GetEscritoDto> output = new List<GetEscritoDto>();
+            foreach (Escrito escrito in all)
             {
-                foreach(ParcialGrupo pg in parcial.GruposAsignados)
+                foreach(EscritoGrupo pg in escrito.GruposAsignados)
                 {
                     if(pg.GrupoId == user.GrupoId)
                     {
-                       output.Add(DtoGet(parcial));
+                       output.Add(DtoGet(escrito));
                     }
                 }
             }
@@ -117,46 +117,46 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] PostParcialDto parcial)
+        public IActionResult Post([FromBody] PostEscritoDto escrito)
         {
-            if (parcial == null)
+            if (escrito == null)
                 return BadRequest();
 
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
 
-            Parcial parcialObject = new Parcial
+            Escrito escritoObject = new Escrito
             {
-                Temas = parcial.Temas,
+                Temas = escrito.Temas,
                 DocenteId = user.Id,
-                MateriaId = parcial.MateriaId,
-                GruposAsignados = new List<ParcialGrupo>()
+                MateriaId = escrito.MateriaId,
+                GruposAsignados = new List<EscritoGrupo>()
             };
 
-            foreach(GrupoDto grupoAsignado in parcial.GruposAsignados)
+            foreach(GrupoDto grupoAsignado in escrito.GruposAsignados)
             {
                 Grupo grupo = _grupos.GetById(grupoAsignado.Id);
-                parcialObject.GruposAsignados.Add(new ParcialGrupo
+                escritoObject.GruposAsignados.Add(new EscritoGrupo
                 {
-                    Date = parcial.Date,
+                    Date = escrito.Date,
                     GrupoId = grupoAsignado.Id,
-                    Parcial = parcialObject
+                    Escrito = escritoObject
                 });
             }
 
-            // crear get parcial {id} just do it man!!!!!!!
-            Parcial addParcial = _repo.Add(parcialObject);
-            return CreatedAtRoute("GetParcial", new
+            // crear get escrito {id} just do it man!!!!!!!
+            Escrito addEscrito = _repo.Add(escritoObject);
+            return CreatedAtRoute("GetEscrito", new
             {
-                id = addParcial.Id
+                id = addEscrito.Id
             }, new
             {
-                Parcial = DtoGet(addParcial)
+                Escrito = DtoGet(addEscrito)
             });
         }
 
-        public class PostParcialDto
+        public class PostEscritoDto
         {
             public int Id { get; set; }
             public int MateriaId { get; set; }
@@ -165,7 +165,7 @@ namespace API.Controllers
             public List<GrupoDto> GruposAsignados { get; set; }
         }
 
-        public class ParcialDto
+        public class EscritoDto
         {
             public int Id { get; set; }
             public string DocenteId { get; set; }
@@ -174,7 +174,7 @@ namespace API.Controllers
             public List<GrupoDto> GruposAsignados { get; set; }
         }
 
-        public class GetParcialDto
+        public class GetEscritoDto
         {
             public int Id { get; set; }
             public DateTime Fecha { get; set; }
