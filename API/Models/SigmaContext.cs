@@ -7,33 +7,26 @@ namespace API.Models
     public partial class SigmaContext : IdentityDbContext<IdentityUser>
     {
         public virtual DbSet<Turno> Turnos { get; set; }
-
         public virtual DbSet<Materia> Materias { get; set; }
-
         public virtual DbSet<Grupo> Grupos { get; set; }
-
         public virtual DbSet<Orientacion> Orientaciones { get; set; }
-
         public virtual DbSet<Docente> Docentes { get; set; }
-
         public virtual DbSet<Alumno> Alumnos { get; set; }
-
         public virtual DbSet<Admin> Admins { get; set; }
-
         public virtual DbSet<API.Models.GrupoDocente> GrupoDocente { get; set; }
-
         public virtual DbSet<API.Models.MateriaOrientacion> MateriaOrientacion { get; set; }
-
         public virtual DbSet<API.Models.Imagen> Imagen { get; set; }
-
         public virtual DbSet<API.Models.TareaImagen> TareaImagen { get; set; }
-
         public virtual DbSet<Tarea> Tareas { get; set; }
         public virtual DbSet<Token> Tokens { get; set; }
         public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
+        public virtual DbSet<EventoGrupo> EventoGrupo { get; set; }
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
         public virtual DbSet<Escrito> Escritos { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<EventNotification> EventNotifications { get; set; }
+
 
         public SigmaContext(DbContextOptions options) : base(options)
         {
@@ -55,10 +48,8 @@ namespace API.Models
             builder.Entity<MateriaOrientacion>().HasKey(e => e.Id);
             builder.Entity<Materia>().HasKey(e => e.Id);
             builder.Entity<Imagen>().HasKey(e => e.Id);
-            builder.Entity<Tarea>().HasKey(e => e.Id);
             builder.Entity<GrupoDocente>().HasKey(e => e.Id);
             builder.Entity<Token>().HasKey(e => e.Id);
-            builder.Entity<TareaGrupo>().HasKey(e => e.Id);
 
             builder.Entity<Grupo>()
                 .HasOne(d => d.Orientacion)
@@ -134,10 +125,10 @@ namespace API.Models
                 .HasMany(d => d.Token)
                 .WithOne(p => p.User);
 
-            builder.Entity<TareaGrupo>()
-                .HasOne(d => d.Tarea)
-                .WithMany(p => p.TareaGrupos)
-                .HasForeignKey(d => d.TareaId);
+            builder.Entity<EventoGrupo>()
+                .HasOne(d => d.Evento)
+                .WithMany(p => p.EventoGrupos)
+                .HasForeignKey(d => d.EventoId);
 
             builder.Entity<TareaGrupo>()
                 .HasOne(d => d.Grupo)

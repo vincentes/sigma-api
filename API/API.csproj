@@ -14,6 +14,8 @@
     <Compile Remove="Migrations\20180619021953_Init22222.Designer.cs" />
     <Compile Remove="Migrations\20180619022049_Init2222222.cs" />
     <Compile Remove="Migrations\20180619022049_Init2222222.Designer.cs" />
+    <Compile Remove="Migrations\20180822180515_aspodkasdpo.cs" />
+    <Compile Remove="Migrations\20180822180515_aspodkasdpo.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -42,7 +42,12 @@ namespace API.Repository
 
         public IEnumerable<Tarea> GetAll()
         {
-            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia).ToList();
+            return _context.Tareas
+                .Include(t => t.TareaImagen)
+                    .ThenInclude(x => x.Imagen)
+                .Include(t => t.Docente)
+                .Include(t => t.Materia)
+                .ToList();
         }
 
         public Tarea GetById(int id)
@@ -51,7 +56,7 @@ namespace API.Repository
                 .Include(t => t.TareaGrupos)
                     .ThenInclude(p => p.Grupo)
                 .Include(t => t.TareaGrupos)
-                    .ThenInclude(p => p.Tarea)
+                    .ThenInclude(p => p.Evento)
                 .SingleOrDefault(x => x.Id == id);
         }
 

@@ -7,13 +7,11 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class TareaGrupo : EventoGrupo
+    public class Event
     {
-        public Tarea Tarea {
-            get
-            {
-                return (Tarea)Evento;
-            }
-        }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public IEnumerable<EventoGrupo> EventoGrupos { get; set; }
     }
 }

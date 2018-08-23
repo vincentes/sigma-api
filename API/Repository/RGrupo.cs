@@ -34,12 +34,24 @@ namespace API.Repository
 
         public IEnumerable<Grupo> GetAll()
         {
-            return (IEnumerable<Grupo>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)this._context.Grupos.Include<Grupo, Turno>((Expression<Func<Grupo, Turno>>)(e => e.Turno)).Include<Grupo, Orientacion>((Expression<Func<Grupo, Orientacion>>)(e => e.Orientacion)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Grupo>((Expression<Func<GrupoDocente, Grupo>>)(t => t.Grupo)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Docente>((Expression<Func<GrupoDocente, Docente>>)(t => t.Docente)).ToList<Grupo>();
+            return _context.Grupos.Include(e => e.Turno).Include(e => e.Orientacion)
+                .Include(e => e.GrupoDocentes)
+                    .ThenInclude(t => t.Grupo)
+                .Include(e => e.GrupoDocentes)
+                    .ThenInclude(t => t.Docente)
+                .ToList();
         }
 
         public Grupo GetById(int id)
         {
-            return ((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)((IIncludableQueryable<Grupo, IEnumerable<GrupoDocente>>)this._context.Grupos.Include<Grupo, Turno>((Expression<Func<Grupo, Turno>>)(e => e.Turno)).Include<Grupo, Orientacion>((Expression<Func<Grupo, Orientacion>>)(e => e.Orientacion)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Grupo>((Expression<Func<GrupoDocente, Grupo>>)(t => t.Grupo)).Include<Grupo, ICollection<GrupoDocente>>((Expression<Func<Grupo, ICollection<GrupoDocente>>>)(e => e.GrupoDocentes))).ThenInclude<Grupo, GrupoDocente, Docente>((Expression<Func<GrupoDocente, Docente>>)(t => t.Docente)).SingleOrDefault<Grupo>((Expression<Func<Grupo, bool>>)(x => x.Id == id));
+            return _context.Grupos
+                .Include(e => e.Turno)
+                .Include(e => e.Orientacion)
+                .Include(e => e.GrupoDocentes)
+                    .ThenInclude(t => t.Grupo)
+                .Include(e => e.GrupoDocentes)
+                    .ThenInclude(t => t.Docente)
+                .SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Grupo item)
@@ -50,8 +62,9 @@ namespace API.Repository
             byId.OrientacionId = item.OrientacionId;
             byId.TurnoId = item.TurnoId;
             byId.Numero = item.Numero;
-            this._context.Update<Grupo>(byId);
-            this._context.SaveChanges();
+            byId.Alumnos = item.Alumnos;
+            _context.Update<Grupo>(byId);
+            _context.SaveChanges();
         }
     }
 }

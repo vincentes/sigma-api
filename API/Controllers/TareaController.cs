@@ -64,9 +64,9 @@ namespace API.Controllers
             {
                 _assignments.Add(new TareaGrupo
                 {
-                    Deadline = agd.Deadline,
+                    Date = agd.Deadline,
                     Grupo = grupo,
-                    Tarea = tarea
+                    Evento = tarea
                 });
             }
             return Ok();
@@ -93,16 +93,17 @@ namespace API.Controllers
             List<TareaDto> tareas = new List<TareaDto>();
             foreach(TareaGrupo tg in alumno.Grupo.TareaGrupo)
             {
+                Tarea t = (Tarea) tg.Evento;
                 TareaDto tarea = new TareaDto
                 {
-                    Id = tg.Tarea.Id,
-                    Contenido = tg.Tarea.Contenido,
-                    DocenteId = tg.Tarea.DocenteId,
-                    MateriaId = tg.Tarea.MateriaId,
+                    Id = tg.Evento.Id,
+                    Contenido = t.Contenido,
+                    DocenteId = t.DocenteId,
+                    MateriaId = t.MateriaId,
                     ImageIds = new List<int>()
                 };
                 
-                foreach(TareaImagen ti in tg.Tarea.TareaImagen)
+                foreach(TareaImagen ti in t.TareaImagen)
                 {
                     tarea.ImageIds.Add(ti.ImagenId);
                 }
@@ -128,7 +129,7 @@ namespace API.Controllers
             {
                 assignments.Assignments.Add(new AssignmentDto
                 {
-                    Deadline = tg.Deadline,
+                    Deadline = tg.Date,
                     GroupId = tg.GrupoId
                 });
             }

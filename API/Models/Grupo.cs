@@ -29,6 +29,7 @@ namespace API.Models
 
         public virtual ICollection<GrupoDocente> GrupoDocentes { get; set; }
         public virtual ICollection<TareaGrupo> TareaGrupo { get; set; }
-
+        [InverseProperty("Grupo")]
+        public virtual ICollection<Alumno> Alumnos { get; set; }
     }
 }

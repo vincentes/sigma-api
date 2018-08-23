@@ -141,7 +141,7 @@ namespace API.Controllers
                 {
                     Date = parcial.Date,
                     GrupoId = grupoAsignado.Id,
-                    Parcial = parcialObject
+                    Evento = parcialObject
                 });
             }
 

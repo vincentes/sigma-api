@@ -7,19 +7,7 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class EscritoGrupo
+    public class EscritoGrupo : EventoGrupo
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public DateTime Date { get; set; }
-
-        [ForeignKey("EscritoId")]
-        public Escrito Escrito { get; set; }
-        public int EscritoId { get; set; }
-
-        [ForeignKey("GrupoId")]
-        public Grupo Grupo { get; set; }
-        public int GrupoId { get; set; }
     }
 }

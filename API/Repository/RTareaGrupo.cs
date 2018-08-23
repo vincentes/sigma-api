@@ -1,5 +1,6 @@
 ﻿
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,19 @@ namespace API.Repository
 
         IEnumerable<TareaGrupo> IRepository<TareaGrupo>.GetAll()
         {
-            throw new NotImplementedException();
+            return _context.TareaGrupo
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Turno)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Orientacion)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Grupo)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Docente)
+                .Include(t => t.Evento)
+                .ToList();
         }
 
         TareaGrupo IRepository<TareaGrupo>.GetById(int id)

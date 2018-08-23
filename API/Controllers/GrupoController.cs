@@ -4,14 +4,16 @@ using System.Collections.Generic;
 
 namespace API.Repository
 {
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class GrupoController : Controller
     {
         private readonly IRepository<Grupo> _repo;
+        private readonly IUserRepository<Alumno> _alumnos;
 
-        public GrupoController(IRepository<Grupo> repo)
+        public GrupoController(IRepository<Grupo> repo, IUserRepository<Alumno> alumnos)
         {
             _repo = repo;
+            _alumnos = alumnos;
         }
 
         [HttpGet]
@@ -31,6 +33,19 @@ namespace API.Repository
             if (byId == null)
                 return (IActionResult)((ControllerBase)this).NotFound();
             return (IActionResult)((ControllerBase)this).Ok((object)byId);
+        }
+
+
+        [HttpPost]
+        public IActionResult AssignGrupo([FromBody] AssignGrupoToAlumnoDto dto)
+        {
+            Grupo byId = _repo.GetById(dto.GrupoId);
+            if (byId == null)
+                return NotFound();
+            Alumno alumnoById = _alumnos.GetById(dto.AlumnoId);
+            byId.Alumnos.Add(alumnoById);
+            _repo.Update(byId);
+            return Ok(byId);
         }
 
         public GrupoController.GrupoDto DtoGet(Grupo grupo)
@@ -123,5 +138,11 @@ namespace API.Repository
 
             public string Nombre { get; set; }
         }
+        public class AssignGrupoToAlumnoDto
+        {
+            public int GrupoId { get; set; }
+            public string AlumnoId { get; set; }
+        }
     }
+
 }

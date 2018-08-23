@@ -4,62 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace API.Migrations
 {
-    public partial class init2 : Migration
+    public partial class asdasojidjasiod : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-    name: "FK_Grupos_AspNetUsers_DocenteId",
-    table: "Grupos");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "GrupoDocente");
-
-            migrationBuilder.DropTable(
-                name: "MateriaOrientacion");
-
-            migrationBuilder.DropTable(
-                name: "TareaImagen");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Imagen");
-
-            migrationBuilder.DropTable(
-                name: "Tareas");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Grupos");
-
-            migrationBuilder.DropTable(
-                name: "Materias");
-
-            migrationBuilder.DropTable(
-                name: "Orientaciones");
-
-            migrationBuilder.DropTable(
-                name: "Turnos");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -235,6 +183,89 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EventNotifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Title = table.Column<string>(nullable: true),
+                    Body = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: true),
+                    DateSent = table.Column<DateTime>(nullable: false),
+                    EventId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventNotifications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Discriminator = table.Column<string>(nullable: false),
+                    DocenteId = table.Column<string>(nullable: true),
+                    MateriaId = table.Column<int>(nullable: true),
+                    Temas = table.Column<string>(nullable: true),
+                    Parcial_DocenteId = table.Column<string>(nullable: true),
+                    Parcial_MateriaId = table.Column<int>(nullable: true),
+                    Parcial_Temas = table.Column<string>(nullable: true),
+                    Tarea_DocenteId = table.Column<string>(nullable: true),
+                    Tarea_MateriaId = table.Column<int>(nullable: true),
+                    Contenido = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Events_Materias_MateriaId",
+                        column: x => x.MateriaId,
+                        principalTable: "Materias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Events_Materias_Parcial_MateriaId",
+                        column: x => x.Parcial_MateriaId,
+                        principalTable: "Materias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Events_Materias_Tarea_MateriaId",
+                        column: x => x.Tarea_MateriaId,
+                        principalTable: "Materias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TareaImagen",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    TareaId = table.Column<int>(nullable: false),
+                    ImagenId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TareaImagen", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TareaImagen_Imagen_ImagenId",
+                        column: x => x.ImagenId,
+                        principalTable: "Imagen",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TareaImagen_Events_TareaId",
+                        column: x => x.TareaId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GrupoDocente",
                 columns: table => new
                 {
@@ -298,18 +329,18 @@ namespace API.Migrations
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Discriminator = table.Column<string>(nullable: false),
-                    GroupId = table.Column<int>(nullable: true),
+                    GrupoId = table.Column<int>(nullable: true),
                     MateriaId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Grupos_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_AspNetUsers_Grupos_GrupoId",
+                        column: x => x.GrupoId,
                         principalTable: "Grupos",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AspNetUsers_Materias_MateriaId",
                         column: x => x.MateriaId,
@@ -319,30 +350,58 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tareas",
+                name: "EventoGrupo",
                 columns: table => new
                 {
+                    Date = table.Column<DateTime>(nullable: false),
+                    EventoId = table.Column<int>(nullable: false),
+                    GrupoId = table.Column<int>(nullable: false),
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    DocenteId = table.Column<string>(nullable: true),
-                    MateriaId = table.Column<int>(nullable: false),
-                    Contenido = table.Column<string>(nullable: true)
+                    Discriminator = table.Column<string>(nullable: false),
+                    EscritoId = table.Column<int>(nullable: true),
+                    ParcialId = table.Column<int>(nullable: true),
+                    TareaId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tareas", x => x.Id);
+                    table.PrimaryKey("PK_EventoGrupo", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tareas_AspNetUsers_DocenteId",
-                        column: x => x.DocenteId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_EventoGrupo_Events_EscritoId",
+                        column: x => x.EscritoId,
+                        principalTable: "Events",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Tareas_Materias_MateriaId",
-                        column: x => x.MateriaId,
-                        principalTable: "Materias",
+                        name: "FK_EventoGrupo_Grupos_GrupoId",
+                        column: x => x.GrupoId,
+                        principalTable: "Grupos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventoGrupo_Events_EventoId",
+                        column: x => x.EventoId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventoGrupo_Events_ParcialId",
+                        column: x => x.ParcialId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EventoGrupo_Grupos_GrupoId1",
+                        column: x => x.GrupoId,
+                        principalTable: "Grupos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventoGrupo_Events_TareaId",
+                        column: x => x.TareaId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -363,32 +422,6 @@ namespace API.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TareaImagen",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    TareaId = table.Column<int>(nullable: false),
-                    ImagenId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TareaImagen", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TareaImagen_Imagen_ImagenId",
-                        column: x => x.ImagenId,
-                        principalTable: "Imagen",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TareaImagen_Tareas_TareaId",
-                        column: x => x.TareaId,
-                        principalTable: "Tareas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -418,9 +451,9 @@ namespace API.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_GroupId",
+                name: "IX_AspNetUsers_GrupoId",
                 table: "AspNetUsers",
-                column: "GroupId");
+                column: "GrupoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_MateriaId",
@@ -437,6 +470,76 @@ namespace API.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventNotifications_EventId",
+                table: "EventNotifications",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventNotifications_UserId",
+                table: "EventNotifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_EscritoId",
+                table: "EventoGrupo",
+                column: "EscritoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_GrupoId",
+                table: "EventoGrupo",
+                column: "GrupoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_EventoId",
+                table: "EventoGrupo",
+                column: "EventoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_ParcialId",
+                table: "EventoGrupo",
+                column: "ParcialId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_GrupoId1",
+                table: "EventoGrupo",
+                column: "GrupoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventoGrupo_TareaId",
+                table: "EventoGrupo",
+                column: "TareaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_DocenteId",
+                table: "Events",
+                column: "DocenteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_MateriaId",
+                table: "Events",
+                column: "MateriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_Parcial_DocenteId",
+                table: "Events",
+                column: "Parcial_DocenteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_Parcial_MateriaId",
+                table: "Events",
+                column: "Parcial_MateriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_Tarea_DocenteId",
+                table: "Events",
+                column: "Tarea_DocenteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_Tarea_MateriaId",
+                table: "Events",
+                column: "Tarea_MateriaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GrupoDocente_DocenteId",
@@ -484,16 +587,6 @@ namespace API.Migrations
                 column: "TareaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tareas_DocenteId",
-                table: "Tareas",
-                column: "DocenteId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tareas_MateriaId",
-                table: "Tareas",
-                column: "MateriaId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tokens_UserId",
                 table: "Tokens",
                 column: "UserId");
@@ -531,6 +624,46 @@ namespace API.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_EventNotifications_AspNetUsers_UserId",
+                table: "EventNotifications",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_EventNotifications_Events_EventId",
+                table: "EventNotifications",
+                column: "EventId",
+                principalTable: "Events",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Events_AspNetUsers_DocenteId",
+                table: "Events",
+                column: "DocenteId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Events_AspNetUsers_Parcial_DocenteId",
+                table: "Events",
+                column: "Parcial_DocenteId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Events_AspNetUsers_Tarea_DocenteId",
+                table: "Events",
+                column: "Tarea_DocenteId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_GrupoDocente_AspNetUsers_DocenteId",
                 table: "GrupoDocente",
                 column: "DocenteId",
@@ -557,7 +690,66 @@ namespace API.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Grupos_AspNetUsers_DocenteId",
+                table: "Grupos");
 
+            migrationBuilder.DropTable(
+                name: "AspNetRoleClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserLogins");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserRoles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "EventNotifications");
+
+            migrationBuilder.DropTable(
+                name: "EventoGrupo");
+
+            migrationBuilder.DropTable(
+                name: "GrupoDocente");
+
+            migrationBuilder.DropTable(
+                name: "MateriaOrientacion");
+
+            migrationBuilder.DropTable(
+                name: "TareaImagen");
+
+            migrationBuilder.DropTable(
+                name: "Tokens");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Imagen");
+
+            migrationBuilder.DropTable(
+                name: "Events");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Grupos");
+
+            migrationBuilder.DropTable(
+                name: "Materias");
+
+            migrationBuilder.DropTable(
+                name: "Orientaciones");
+
+            migrationBuilder.DropTable(
+                name: "Turnos");
         }
     }
 }

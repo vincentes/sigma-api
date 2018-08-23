@@ -141,7 +141,7 @@ namespace API.Controllers
                 {
                     Date = escrito.Date,
                     GrupoId = grupoAsignado.Id,
-                    Escrito = escritoObject
+                    Evento = escritoObject
                 });
             }
 
