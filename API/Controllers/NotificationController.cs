@@ -20,14 +20,14 @@ namespace API.Controllers
     public class NotificationController : Controller
     {
         private readonly IRepository<Token> _repo;
-        private readonly IRepository<TareaGrupo> _tareas;
+        private readonly IRepository<EventoGrupo> _eventos;
         private readonly UserManager<AppUser> _userManager;
         private readonly INotificationRepository<EventNotification> _notifications;
 
-        public NotificationController(IRepository<Token> repo, INotificationRepository<EventNotification> notifications, IRepository<TareaGrupo> tareas, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public NotificationController(IRepository<Token> repo, INotificationRepository<EventNotification> notifications, IRepository<EventoGrupo> eventos, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repo = repo;
-            _tareas = tareas;
+            _eventos = eventos;
             _userManager = userManager;
             _notifications = notifications;
         }
@@ -56,7 +56,7 @@ namespace API.Controllers
         [HttpPost]
         public IActionResult EventNotify()
         {
-            IEnumerable<EventoGrupo> eventos = _tareas.GetAll();
+            IEnumerable<EventoGrupo> eventos = _eventos.GetAll();
             IEnumerable<EventNotification> notifications = _notifications.GetAll();
             foreach(EventoGrupo evento in eventos)
             {
@@ -75,26 +75,42 @@ namespace API.Controllers
 
                 if (daysDifference <= 5 && !hasBeenNotified)
                 {
-                    if(evento.Evento is Escrito)
+                    string title;
+                    string body;
+                    DateTime sent = DateTime.Now;
+                    if (evento.Evento is Escrito)
                     {
-                        string title = "Escrito próximo";
-                        string body = "¡Tenés un escrito en unos dias!";
-                        DateTime sent = DateTime.Now;
-                        EventNotification notificationTemplate = new EventNotification
-                        {
-                            Title = title,
-                            Body = body,
-                            DateSent = sent,
-                            Event = evento.Evento
-                        };
+                        title = "Escrito próximo";
+                        body = "¡Tenés un escrito en unos dias!";
+                    }
+                    else if (evento.Evento is Parcial)
+                    {
+                        title = "Parcial próximo";
+                        body = "¡Tenés un parcial en unos dias!";
+                    }
+                    else if (evento.Evento is Tarea)
+                    {
+                        title = "Entrega próxima";
+                        body = "¡Tenés un deber para entregar en unos dias!";
+                    } else
+                    {
+                        continue;
+                    }
+                    
+                    EventNotification notificationTemplate = new EventNotification
+                    {
+                        Title = title,
+                        Body = body,
+                        DateSent = sent,
+                        Event = evento.Evento
+                    };
 
-                        foreach(Alumno alumno in evento.Grupo.Alumnos)
+                    foreach(Alumno alumno in evento.Grupo.Alumnos)
+                    {
+                        notificationTemplate.User = alumno;
+                        foreach(Token token in alumno.Token)
                         {
-                            notificationTemplate.User = alumno;
-                            foreach(Token token in alumno.Token)
-                            {
-                                Firebase.SendNotification(token.Content, title, body);
-                            }
+                            Firebase.SendNotification(token.Content, title, body);
                         }
                     }
                 }
