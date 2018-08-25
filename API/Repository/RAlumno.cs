@@ -73,7 +73,7 @@ namespace API.Repository
                 .Include(t => t.Grupo)
                     .ThenInclude(j => j.TareaGrupo)
                         .ThenInclude(x => x.Evento)
-                            .ThenInclude(y => y.EventoGrupos)
+                            .ThenInclude(y => y.GruposAsignados)
                 .SingleOrDefault(x => x.Id == id);
         }
 

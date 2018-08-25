@@ -15,12 +15,14 @@ namespace API.Models
         public int Id { get; set; }
         public DateTime Date { get; set; }
 
-
         [ForeignKey("EventoId")]
         public Event Evento { get; set; }
         public int EventoId { get; set; }
 
         public Grupo Grupo { get; set; }
         public int GrupoId { get; set; }
+
+        public bool Notified { get; set; } = false;
+
     }
 }

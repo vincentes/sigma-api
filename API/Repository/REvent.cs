@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,13 +36,18 @@ namespace API.Repository
 
         public Event GetById(int id)
         {
-            throw new NotImplementedException();
-
+            return _context.Events
+                    .Include(p => p.GruposAsignados)
+                    .SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Event item)
         {
-            throw new NotImplementedException();
+            Event byId = GetById(item.Id);
+            byId.Id = item.Id;
+            byId.GruposAsignados = item.GruposAsignados;
+            _context.Update<Event>(byId);
+            _context.SaveChanges();
         }
     }
 }

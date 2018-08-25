@@ -18,6 +18,5 @@ namespace API.Models
         [ForeignKey("MateriaId")]
         public Materia Materia { get; set; }
 
-        public List<EscritoGrupo> GruposAsignados { get; set;}
     }
 }

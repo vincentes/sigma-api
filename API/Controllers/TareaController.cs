@@ -125,7 +125,7 @@ namespace API.Controllers
                 return NotFound();
             GetAssignedGruposDto assignments = new GetAssignedGruposDto();
             assignments.Assignments = new List<AssignmentDto>();
-            foreach (TareaGrupo tg in byId.TareaGrupos)
+            foreach (TareaGrupo tg in byId.GruposAsignados)
             {
                 assignments.Assignments.Add(new AssignmentDto
                 {

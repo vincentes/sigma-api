@@ -3,14 +3,16 @@ using System;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    partial class SigmaContextModelSnapshot : ModelSnapshot
+    [Migration("20180825164152_34234234")]
+    partial class _34234234
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +34,30 @@ namespace API.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Event");
                 });
 
+            modelBuilder.Entity("API.Models.EventNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Body");
+
+                    b.Property<DateTime>("DateSent");
+
+                    b.Property<int>("EventId");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EventNotifications");
+                });
+
             modelBuilder.Entity("API.Models.EventoGrupo", b =>
                 {
                     b.Property<int>("Id")
@@ -45,8 +71,6 @@ namespace API.Migrations
                     b.Property<int>("EventoId");
 
                     b.Property<int>("GrupoId");
-
-                    b.Property<bool>("Notified");
 
                     b.HasKey("Id");
 
@@ -432,6 +456,9 @@ namespace API.Migrations
                 {
                     b.HasBaseType("API.Models.EventoGrupo");
 
+                    b.Property<int?>("EscritoId");
+
+                    b.HasIndex("EscritoId");
 
                     b.HasIndex("GrupoId");
 
@@ -444,8 +471,11 @@ namespace API.Migrations
                 {
                     b.HasBaseType("API.Models.EventoGrupo");
 
+                    b.Property<int?>("ParcialId");
 
                     b.HasIndex("GrupoId");
+
+                    b.HasIndex("ParcialId");
 
                     b.ToTable("ParcialGrupo");
 
@@ -456,9 +486,12 @@ namespace API.Migrations
                 {
                     b.HasBaseType("API.Models.EventoGrupo");
 
+                    b.Property<int?>("TareaId");
 
                     b.HasIndex("GrupoId")
                         .HasName("IX_EventoGrupo_GrupoId1");
+
+                    b.HasIndex("TareaId");
 
                     b.ToTable("TareaGrupo");
 
@@ -511,10 +544,22 @@ namespace API.Migrations
                     b.HasDiscriminator().HasValue("Docente");
                 });
 
+            modelBuilder.Entity("API.Models.EventNotification", b =>
+                {
+                    b.HasOne("API.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("API.Models.EventoGrupo", b =>
                 {
                     b.HasOne("API.Models.Event", "Evento")
-                        .WithMany("GruposAsignados")
+                        .WithMany("EventoGrupos")
                         .HasForeignKey("EventoId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -664,6 +709,10 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.EscritoGrupo", b =>
                 {
+                    b.HasOne("API.Models.Escrito")
+                        .WithMany("GruposAsignados")
+                        .HasForeignKey("EscritoId");
+
                     b.HasOne("API.Models.Grupo", "Grupo")
                         .WithMany()
                         .HasForeignKey("GrupoId")
@@ -676,6 +725,10 @@ namespace API.Migrations
                         .WithMany()
                         .HasForeignKey("GrupoId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.Parcial")
+                        .WithMany("GruposAsignados")
+                        .HasForeignKey("ParcialId");
                 });
 
             modelBuilder.Entity("API.Models.TareaGrupo", b =>
@@ -685,6 +738,10 @@ namespace API.Migrations
                         .HasForeignKey("GrupoId")
                         .HasConstraintName("FK_EventoGrupo_Grupos_GrupoId1")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.Tarea")
+                        .WithMany("TareaGrupos")
+                        .HasForeignKey("TareaId");
                 });
 
             modelBuilder.Entity("API.Models.Alumno", b =>

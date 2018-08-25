@@ -33,10 +33,16 @@ namespace API.Repository
 
         public void Update(EventoGrupo item)
         {
-            throw new NotImplementedException();
+            EventoGrupo byId = GetById(item.Id);
+            byId.Id = item.Id;
+            byId.Grupo = item.Grupo;
+            byId.Evento = item.Evento;
+            byId.Notified = item.Notified;
+            _context.Update(byId);
+            _context.SaveChanges();
         }
 
-        IEnumerable<EventoGrupo> IRepository<EventoGrupo>.GetAll()
+        public IEnumerable<EventoGrupo> GetAll()
         {
             return _context.EventoGrupo
                 .Include(t => t.Grupo)
@@ -56,9 +62,24 @@ namespace API.Repository
                 .ToList();
         }
 
-        EventoGrupo IRepository<EventoGrupo>.GetById(int id)
+        public EventoGrupo GetById(int id)
         {
-            throw new NotImplementedException();
+            return _context.EventoGrupo
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Turno)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Orientacion)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Grupo)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Docente)
+                 .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Alumnos)
+                        .ThenInclude(t => t.Token)
+                .Include(t => t.Evento)
+                .SingleOrDefault(x => x.Id == id);
         }
     }
 }

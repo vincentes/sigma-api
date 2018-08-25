@@ -131,7 +131,7 @@ namespace API.Controllers
                 Temas = parcial.Temas,
                 DocenteId = user.Id,
                 MateriaId = parcial.MateriaId,
-                GruposAsignados = new List<ParcialGrupo>()
+                GruposAsignados = new List<EventoGrupo>()
             };
 
             foreach(GrupoDto grupoAsignado in parcial.GruposAsignados)

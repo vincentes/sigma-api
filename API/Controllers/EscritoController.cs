@@ -131,7 +131,7 @@ namespace API.Controllers
                 Temas = escrito.Temas,
                 DocenteId = user.Id,
                 MateriaId = escrito.MateriaId,
-                GruposAsignados = new List<EscritoGrupo>()
+                GruposAsignados = new List<EventoGrupo>()
             };
 
             foreach(GrupoDto grupoAsignado in escrito.GruposAsignados)

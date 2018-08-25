@@ -20,12 +20,14 @@ namespace API.Models
         public virtual DbSet<Tarea> Tareas { get; set; }
         public virtual DbSet<Token> Tokens { get; set; }
         public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
+        public virtual DbSet<ParcialGrupo> ParcialGrupo { get; set; }
+        public virtual DbSet<EscritoGrupo> EscritoGrupo { get; set; }
+
         public virtual DbSet<EventoGrupo> EventoGrupo { get; set; }
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
         public virtual DbSet<Escrito> Escritos { get; set; }
         public virtual DbSet<Event> Events { get; set; }
-        public virtual DbSet<EventNotification> EventNotifications { get; set; }
 
 
         public SigmaContext(DbContextOptions options) : base(options)
@@ -127,7 +129,7 @@ namespace API.Models
 
             builder.Entity<EventoGrupo>()
                 .HasOne(d => d.Evento)
-                .WithMany(p => p.EventoGrupos)
+                .WithMany(p => p.GruposAsignados)
                 .HasForeignKey(d => d.EventoId);
 
             builder.Entity<TareaGrupo>()

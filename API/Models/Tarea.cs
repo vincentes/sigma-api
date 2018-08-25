@@ -18,6 +18,5 @@ namespace API.Models
 
         public Materia Materia { get; set; }
 
-        public List<TareaGrupo> TareaGrupos { get; set; }
     }
 }

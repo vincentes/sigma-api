@@ -53,9 +53,9 @@ namespace API.Repository
         public Tarea GetById(int id)
         {
             return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia)
-                .Include(t => t.TareaGrupos)
+                .Include(t => t.GruposAsignados)
                     .ThenInclude(p => p.Grupo)
-                .Include(t => t.TareaGrupos)
+                .Include(t => t.GruposAsignados)
                     .ThenInclude(p => p.Evento)
                 .SingleOrDefault(x => x.Id == id);
         }
