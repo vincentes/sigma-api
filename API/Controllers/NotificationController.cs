@@ -47,55 +47,15 @@ namespace API.Controllers
                 User = user
             });
             return Ok();
-        }
-
-
+        }    
+    
         [HttpPost]
         public IActionResult EventNotify()
         {
             IEnumerable<EventoGrupo> eventos = _eventos.GetAll();
             foreach(EventoGrupo evento in eventos)
             {
-
-                DateTime now = DateTime.Now;
-                DateTime deadline = evento.Date;
-                int daysDifference = (deadline - now).Days;
-                string dayName = deadline.ToString("dddd", new CultureInfo("es-ES"));
-
-                if (daysDifference <= 5 && !evento.Notified)
-                {
-                    string title;
-                    string body;
-                    DateTime sent = DateTime.Now;
-                    if (evento.Evento is Escrito)
-                    {
-                        title = "Escrito próximo";
-                        body = "¡Tenés un escrito este " + dayName + "!";
-                    }
-                    else if (evento.Evento is Parcial)
-                    {
-                        title = "Parcial próximo";
-                        body = "¡Tenés un parcial este " + dayName + "!";
-                    }
-                    else if (evento.Evento is Tarea)
-                    {
-                        title = "Entrega próxima";
-                        body = "¡Tenés que entregar un deber este " + dayName + "!";
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                    
-
-                    foreach(Alumno alumno in evento.Grupo.Alumnos)
-                    {
-                        foreach(Token token in alumno.Token)
-                        {
-                            Firebase.SendNotification(token.Content, title, body);
-                        }
-                    }
-                }
+                Firebase.RemindEvents(evento);
             }
             return Ok();
         }

@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Repository;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -145,8 +146,8 @@ namespace API.Controllers
                 });
             }
 
-            // crear get escrito {id} just do it man!!!!!!!
             Escrito addEscrito = _repo.Add(escritoObject);
+            Firebase.NotifyCreated(addEscrito);
             return CreatedAtRoute("GetEscrito", new
             {
                 id = addEscrito.Id

@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Repository;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -69,6 +70,8 @@ namespace API.Controllers
                     Evento = tarea
                 });
             }
+
+            Firebase.NotifyCreated(tarea);
             return Ok();
         }
 
@@ -115,6 +118,40 @@ namespace API.Controllers
             {
                 Deberes = tareas
             });
+        }
+
+        [HttpPost("{id}", Name = "DeleteDeber")]
+        [Authorize(Roles = "Docente")]
+        public IActionResult DeleteDeber(int id)
+        {
+            Tarea tarea = _repo.GetById(id);
+            if(tarea == null)
+            {
+                return NotFound();
+            }
+            _repo.Delete(tarea);
+            return Ok();
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IEnumerable<TareaDto> GetDocenteTareas()
+        {
+            IEnumerable<Tarea> all = _repo.GetAll();
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+
+            List<TareaDto> output = new List<TareaDto>();
+            foreach (Tarea tarea in all)
+            {
+                if (tarea.DocenteId == user.Id)
+                {
+                    output.Add(DtoGet(tarea));
+                }
+            }
+
+            return output;
         }
 
         [HttpGet("{id}", Name = "GetAssignedGrupos")]

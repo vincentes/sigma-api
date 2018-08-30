@@ -53,10 +53,41 @@ namespace API.Controllers
                 var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.CI);
                 var roles = await _userManager.GetRolesAsync(appUser);
 
-                return Ok(new {
-                    Token = await GenerateJwtToken(model.CI, appUser),
-                    Roles = roles
-                });
+                if(appUser is Docente)
+                {
+                    var docente = _docenteManager.GetById(appUser.Id);
+                    DocenteInfoDto result = new DocenteInfoDto();
+                    result.Grupos = new List<GrupoDto>();
+                    foreach (GrupoDocente gd in docente.GrupoDocentes)
+                    {
+                        result.Id = docente.Id;
+                        result.Username = docente.UserName;
+                        result.MateriaId = docente.MateriaId;
+                        result.Grupos.Add(new GrupoDto
+                        {
+                            Id = gd.Grupo.Id,
+                            Anio = gd.Grupo.Anio,
+                            Grado = gd.Grupo.Grado,
+                            Numero = gd.Grupo.Numero,
+                            OrientacionId = gd.Grupo.OrientacionId,
+                            TurnoId = gd.Grupo.TurnoId
+                        });
+                    }
+
+                    return Ok(new {
+                        Token = await GenerateJwtToken(model.CI, appUser),
+                        Roles = roles,
+                        Info = result
+                    });
+                } else if(appUser is Alumno)
+                {
+                    return Ok(new
+                    {
+                        Token = await GenerateJwtToken(model.CI, appUser),
+                        Roles = roles
+                    });
+                }
+
             }
             return Unauthorized();
         }
@@ -213,6 +244,14 @@ namespace API.Controllers
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    }
+
+    internal class DocenteInfoDto
+    {
+        public List<GrupoDto> Grupos { get; internal set; }
+        public string Id { get; internal set; }
+        public int MateriaId { get; internal set; }
+        public string Username { get; internal set; }
     }
 
     public class LoginDto

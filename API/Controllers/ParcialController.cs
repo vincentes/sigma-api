@@ -1,5 +1,6 @@
 ﻿using API.Models;
 using API.Repository;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -145,8 +146,8 @@ namespace API.Controllers
                 });
             }
 
-            // crear get parcial {id} just do it man!!!!!!!
             Parcial addParcial = _repo.Add(parcialObject);
+            Firebase.NotifyCreated(addParcial);
             return CreatedAtRoute("GetParcial", new
             {
                 id = addParcial.Id

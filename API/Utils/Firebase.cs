@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using API.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,6 +13,104 @@ namespace API.Utils
 {
     public static class Firebase
     {
+        public static void RemindEvents(EventoGrupo evento)
+        {
+            DateTime now = DateTime.Now;
+            DateTime deadline = evento.Date;
+            int daysDifference = (deadline - now).Days;
+            string dayName = deadline.ToString("dddd", new CultureInfo("es-ES"));
+
+            if (daysDifference <= 5)
+            {
+                string title;
+                string body;
+                DateTime sent = DateTime.Now;
+                if (evento.Evento is Escrito)
+                {
+                    if(daysDifference == 1)
+                    {
+                        title = "Escrito próximo";
+                        body = "¡Tenés un escrito mañana!";
+                    } else
+                    {
+                        title = "Escrito próximo";
+                        body = "¡Tenés un escrito este " + dayName + "!";
+                    }
+                }
+                else if (evento.Evento is Parcial)
+                {
+                    if(daysDifference == 1)
+                    {
+                        title = "Parcial próximo";
+                        body = "¡Tenés un parcial mañana!";
+                    } else
+                    {
+                        title = "Parcial próximo";
+                        body = "¡Tenés un parcial este " + dayName + "!";
+                    }
+                }
+                else if (evento.Evento is Tarea)
+                {
+                    if (daysDifference == 1)
+                    {
+                        title = "Entrega próxima";
+                        body = "¡Tenés que entregar un deber mañana!";
+                    }
+                    else
+                    {
+                        title = "Entrega próxima";
+                        body = "¡Tenés que entregar un deber este " + dayName + "!";
+                    }
+                } else
+                {
+                    return;
+                }
+
+
+                foreach (Alumno alumno in evento.Grupo.Alumnos)
+                {
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
+                }
+            }
+        }
+
+        public static void NotifyCreated(Event evento)
+        {
+            if (evento is Escrito)
+            {
+                foreach(EventoGrupo grupo in evento.GruposAsignados)
+                {
+                    SendGroupNotification(grupo, "Asignación de escrito", "Un profesor te ha asignado un escrito.");
+                }
+            } else if(evento is Parcial)
+            {
+                foreach (EventoGrupo grupo in evento.GruposAsignados)
+                {
+                    SendGroupNotification(grupo, "Asignación de parcial", "Un profesor te ha asignado un parcial.");
+                }
+            } else if(evento is Tarea)
+            {
+                foreach (EventoGrupo grupo in evento.GruposAsignados)
+                {
+                    SendGroupNotification(grupo, "Asignación de deber", "Un profesor te ha asignado un deber.");
+                }
+            }
+        }
+
+        public static void SendGroupNotification(EventoGrupo evento, string title, string body)
+        {
+            foreach (Alumno alumno in evento.Grupo.Alumnos)
+            {
+                foreach (Token token in alumno.Token)
+                {
+                    SendNotification(token.Content, title, body);
+                }
+            }
+        }
+
         public static void SendNotification(string token, string title, string body)
         {
             WebRequest tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");

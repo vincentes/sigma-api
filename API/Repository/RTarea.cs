@@ -36,8 +36,8 @@ namespace API.Repository
 
         public void Delete(Tarea item)
         {
-            this._context.Remove<Tarea>(item);
-            this._context.SaveChanges();
+            _context.Remove<Tarea>(item);
+            _context.SaveChanges();
         }
 
         public IEnumerable<Tarea> GetAll()
@@ -52,9 +52,15 @@ namespace API.Repository
 
         public Tarea GetById(int id)
         {
-            return _context.Tareas.Include(t => t.TareaImagen).ThenInclude(x => x.Imagen).Include(t => t.Docente).Include(t => t.Materia)
+            return _context.Tareas
+                .Include(t => t.TareaImagen)
+                    .ThenInclude(x => x.Imagen)
+                .Include(t => t.Docente)
+                .Include(t => t.Materia)
                 .Include(t => t.GruposAsignados)
                     .ThenInclude(p => p.Grupo)
+                        .ThenInclude(p => p.Alumnos)
+                            .ThenInclude(p => p.Token)
                 .Include(t => t.GruposAsignados)
                     .ThenInclude(p => p.Evento)
                 .SingleOrDefault(x => x.Id == id);
