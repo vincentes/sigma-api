@@ -61,19 +61,6 @@ namespace API.Repository
                 .Include(t => t.Grupo)
                     .ThenInclude(j => j.TareaGrupo)
                         .ThenInclude(x => x.Tarea)
-                .Include(t => t.Grupo)
-                    .ThenInclude(j => j.TareaGrupo)
-                        .ThenInclude(x => x.Tarea)
-                            .ThenInclude(y => y.TareaImagen)
-                                .ThenInclude(z => z.Imagen)
-                .Include(t => t.Grupo)
-                    .ThenInclude(j => j.TareaGrupo)
-                        .ThenInclude(x => x.Tarea)
-                            .ThenInclude(y => y.Docente)
-                .Include(t => t.Grupo)
-                    .ThenInclude(j => j.TareaGrupo)
-                        .ThenInclude(x => x.Evento)
-                            .ThenInclude(y => y.GruposAsignados)
                 .SingleOrDefault(x => x.Id == id);
         }
 

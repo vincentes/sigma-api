@@ -27,6 +27,10 @@ namespace API.Repository
                 _context.Add(ti);
             }
     
+            if(item.Evento == null)
+            {
+                item.Evento = new Event();
+            }
             var entityEntry = _context.Add(item);
             _context.SaveChanges();
             var excludeDocenteEntity = entityEntry.Entity;
@@ -62,7 +66,7 @@ namespace API.Repository
                         .ThenInclude(p => p.Alumnos)
                             .ThenInclude(p => p.Token)
                 .Include(t => t.GruposAsignados)
-                    .ThenInclude(p => p.Evento)
+                    .ThenInclude(p => p.Tarea)
                 .SingleOrDefault(x => x.Id == id);
         }
 

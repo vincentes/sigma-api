@@ -64,6 +64,8 @@ namespace API
             services.AddTransient<IRepository<Imagen>, RImagen>();
             services.AddTransient<IRepository<Token>, RToken>();
             services.AddTransient<IRepository<Parcial>, RParcial>();
+            services.AddTransient<IRepository<EncuestaGlobal>, REncuestaGlobal>();
+            services.AddTransient<IUserRepository<Adscripto>, RAdscripto>();
             services.AddTransient<IRepository<Escrito>, REscrito>();
             services.AddIdentity<AppUser, IdentityRole>(options =>
             {

@@ -39,6 +39,7 @@ namespace API.Repository
                     .ThenInclude(t => t.Grupo)
                 .Include(e => e.GrupoDocentes)
                     .ThenInclude(t => t.Docente)
+                .Include(e => e.Alumnos)
                 .ToList();
         }
 
@@ -51,6 +52,7 @@ namespace API.Repository
                     .ThenInclude(t => t.Grupo)
                 .Include(e => e.GrupoDocentes)
                     .ThenInclude(t => t.Docente)
+                .Include(e => e.Alumnos)
                 .SingleOrDefault(x => x.Id == id);
         }
 

@@ -49,7 +49,7 @@ namespace API.Repository
                 .Include(t => t.Grupo)
                     .ThenInclude(e => e.GrupoDocentes)
                         .ThenInclude(t => t.Docente)
-                .Include(t => t.Evento)
+                .Include(t => t.Tarea)
                 .ToList();
         }
 

@@ -100,6 +100,25 @@ namespace API.Utils
             }
         }
 
+        public static void NotifyCreated(Tarea evento)
+        {
+            foreach (TareaGrupo grupo in evento.GruposAsignados)
+            {
+                SendGroupNotification(grupo, "Asignación de deber", "Un profesor te ha asignado un deber.");
+            }
+        }
+
+        public static void SendGroupNotification(TareaGrupo tg, string title, string body)
+        {
+            foreach (Alumno alumno in tg.Grupo.Alumnos)
+            {
+                foreach (Token token in alumno.Token)
+                {
+                    SendNotification(token.Content, title, body);
+                }
+            }
+        }
+
         public static void SendGroupNotification(EventoGrupo evento, string title, string body)
         {
             foreach (Alumno alumno in evento.Grupo.Alumnos)

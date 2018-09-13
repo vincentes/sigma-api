@@ -67,7 +67,7 @@ namespace API.Controllers
                 {
                     Date = agd.Deadline,
                     Grupo = grupo,
-                    Evento = tarea
+                    Tarea = tarea
                 });
             }
 
@@ -96,10 +96,10 @@ namespace API.Controllers
             List<TareaDto> tareas = new List<TareaDto>();
             foreach(TareaGrupo tg in alumno.Grupo.TareaGrupo)
             {
-                Tarea t = (Tarea) tg.Evento;
+                Tarea t = tg.Tarea;
                 TareaDto tarea = new TareaDto
                 {
-                    Id = tg.Evento.Id,
+                    Id = tg.Tarea.Id,
                     Contenido = t.Contenido,
                     DocenteId = t.DocenteId,
                     MateriaId = t.MateriaId,

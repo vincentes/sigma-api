@@ -28,7 +28,8 @@ namespace API.Models
         public virtual DbSet<Parcial> Parciales { get; set; }
         public virtual DbSet<Escrito> Escritos { get; set; }
         public virtual DbSet<Event> Events { get; set; }
-
+        public virtual DbSet<EncuestaGlobal> EncuestasGlobales { get; set; }
+        public virtual DbSet<Adscripto> Adscriptos { get; set; }
 
         public SigmaContext(DbContextOptions options) : base(options)
         {
@@ -67,6 +68,12 @@ namespace API.Models
                 .HasOne(d => d.Turno)
                 .WithMany(p => p.Grupos)
                 .HasForeignKey(d => d.TurnoId);
+
+            builder.Entity<Grupo>()
+                .HasMany(d => d.Alumnos)
+                .WithOne(p => p.Grupo)
+                .HasForeignKey(d => d.GrupoId);
+
 
             builder.Entity<Orientacion>()
                 .HasMany(d => d.Grupos)
@@ -136,6 +143,12 @@ namespace API.Models
                 .HasOne(d => d.Grupo)
                 .WithMany(p => p.TareaGrupo)
                 .HasForeignKey(d => d.GrupoId);
+
+
+            builder.Entity<EncuestaGlobal>()
+                .HasOne(d => d.Adscripto)
+                .WithMany(p => p.Encuestas)
+                .HasForeignKey(d => d.AdscriptoId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

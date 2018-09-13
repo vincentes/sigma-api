@@ -7,13 +7,21 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class TareaGrupo : EventoGrupo
+    public class TareaGrupo
     {
-        public Tarea Tarea {
-            get
-            {
-                return (Tarea)Evento;
-            }
-        }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+
+        [ForeignKey("TareaId")]
+        public Tarea Tarea { get; set; }
+        public int TareaId { get; set; }
+
+        [ForeignKey("GrupoId")]
+        public Grupo Grupo { get; set; }
+        public int GrupoId { get; set; }
+
+        public bool Notified { get; set; } = false;
     }
 }

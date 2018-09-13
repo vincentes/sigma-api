@@ -27,18 +27,21 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserRepository<Docente> _docenteManager;
+        private readonly IUserRepository<Adscripto> _adscriptoManager;
         private readonly IConfiguration _configuration;
         private readonly string[] _roles;
 
         public AccountController(UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager, IUserRepository<Docente> docenteManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+            SignInManager<AppUser> signInManager, IUserRepository<Docente> docenteManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserRepository<Adscripto> adscriptos)
         {
-            _roles = new string[3];
+            _roles = new string[4];
             _roles[0] = "Admin";
             _roles[1] = "Alumno";
             _roles[2] = "Docente";
+            _roles[3] = "Adscripto";
             _signInManager = signInManager;
             _docenteManager = docenteManager;
+            _adscriptoManager = adscriptos;
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
@@ -79,7 +82,7 @@ namespace API.Controllers
                         Roles = roles,
                         Info = result
                     });
-                } else if(appUser is Alumno)
+                } else
                 {
                     return Ok(new
                     {
@@ -180,6 +183,51 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RegisterAdscripto([FromBody] RegisterAdscriptoDto model)
+        {
+            var user = new Adscripto();
+            user.UserName = model.CI;
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                var currentUser = await _userManager.FindByNameAsync(user.UserName);
+                foreach (var item in _roles)
+                {
+                    if (!await _roleManager.RoleExistsAsync(item))
+                    {
+                        var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(item));
+                        if (!createRoleResult.Succeeded)
+                        {
+                            throw new ApplicationException("Creating role " + item + "failed with error(s): " + createRoleResult.Errors);
+                        }
+                    }
+                }
+
+                if (!await _userManager.IsInRoleAsync(user: user, role: "Adscripto"))
+                {
+                    var assignRoleResult = await _userManager.AddToRoleAsync(user, "Adscripto");
+                    if (!assignRoleResult.Succeeded)
+                    {
+                        throw new ApplicationException("Creating role 'Adscripto' failed with error(s): " + assignRoleResult.Errors);
+                    }
+                }
+
+                if (await _userManager.IsInRoleAsync(user, "Adscripto"))
+                {
+                    var adscripto = (Adscripto) currentUser;
+                    _adscriptoManager.Add(adscripto);
+                }
+
+                await _signInManager.SignInAsync(user, false);
+                return Ok(new
+                {
+                    Token = await GenerateJwtToken(model.CI, user)
+                });
+            }
+            return StatusCode((int)HttpStatusCode.Conflict);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
             var user = new AppUser();
@@ -244,6 +292,12 @@ namespace API.Controllers
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    }
+
+    public class RegisterAdscriptoDto
+    {
+        public string CI { get; set; }
+        public string Password { get; set; }
     }
 
     internal class DocenteInfoDto
