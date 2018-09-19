@@ -29,275 +29,393 @@ namespace API.Controllers
             this._userManager = userManager;
         }
 
-        [HttpGet("{id}", Name = "GetEncuesta")]
+        [HttpGet("{id}", Name = "GetEncuestaGlobal")]
         public IActionResult Get(int id)
         {
-            EncuestaGlobal encuesta = _repo.GetById(id);
-            if(encuesta == null)
+            EncuestaGlobal byId = _repo.GetById(id);
+            if (byId == null)
             {
                 return NotFound();
             }
-            return Ok(ByIdDtoGet(encuesta));
-        }
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult GetCreated()
-        {
-            var ident = User.Identity as ClaimsIdentity;
-            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            AppUser appUser = _userManager.Users.SingleOrDefault(r => r.Id == userID);
-            Adscripto adscripto = _adscriptos.GetById(appUser.Id);
-
-            List<PostEncuestaGlobalDto> dto = new List<PostEncuestaGlobalDto>();
-            foreach(EncuestaGlobal encuesta in _repo.GetAll())
-            {
-                if(encuesta.AdscriptoId == adscripto.Id)
-                {
-                    dto.Add(DtoGet(encuesta));
-                }
-            }
-            return Ok(dto);
+            return Ok(DtoGet(byId));
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
+            IEnumerable<EncuestaGlobal> list = _repo.GetAll();
+            List<EGGetEncuesta> dtoList = new List<EGGetEncuesta>();
+
+            foreach (EncuestaGlobal eg in list)
+            {
+                dtoList.Add(DtoGet(eg));
+            }
+
+            return Ok(dtoList);
+        }
+
+        [HttpGet]
+        public IActionResult GetCreated()
+        {
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            AppUser appUser = _userManager.Users.SingleOrDefault(r => r.Id == userID);
-            Alumno alumno = _alumnos.GetById(appUser.Id);
+            Adscripto adscripto = _adscriptos.GetById(userID);
 
-            List<PostEncuestaGlobalDto> dto = new List<PostEncuestaGlobalDto>();
-            foreach (EncuestaGlobal encuesta in _repo.GetAll())
+            IEnumerable<EncuestaGlobal> list = _repo.GetAll();
+            List<EGGetEncuesta> dtoList = new List<EGGetEncuesta>();
+
+            foreach (EncuestaGlobal eg in list)
             {
-                var hasResponded = false;
-                foreach(Pregunta p in encuesta.Preguntas)
+                if (eg.AdscriptoId == adscripto.Id)
                 {
-                    if(p is PreguntaUO)
-                    {
-                    }
-
-                }
-
-                if(!hasResponded)
-                {
-                    dto.Add(DtoGet(encuesta));
+                    dtoList.Add(DtoGet(eg));
                 }
             }
-            return Ok(dto);
+
+            return Ok(dtoList);
         }
 
         [HttpPost]
-        [Authorize]
-        public IActionResult Post([FromBody] PostEncuestaGlobalDto encuesta)
+        public IActionResult Respond([FromBody] EGRespond encuesta)
         {
-            if (encuesta == null)
-                return BadRequest();
-
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            AppUser appUser = _userManager.Users.SingleOrDefault(r => r.Id == userID);
-            Adscripto adscripto = _adscriptos.GetById(appUser.Id);
+            Alumno alumno = _alumnos.GetById(userID);
 
-            var _encuesta = new EncuestaGlobal
-            {
-                Id = encuesta.Id,
-                Titulo = encuesta.Titulo,
-                Descripcion = encuesta.Descripcion,
-                FechaCreacion = encuesta.FechaCreacion,
-                Adscripto = adscripto,
-                AdscriptoId = adscripto.Id,
-                Preguntas = new List<Pregunta>()
-            };
+            var toRespond = _repo.GetById(encuesta.Id);
 
-            foreach(PostPreguntaDto pregunta in encuesta.Preguntas)
+            foreach (EGRespondPregunta pregunta in encuesta.Preguntas)
             {
-                switch(pregunta.Tipo)
+                foreach (Pregunta pEntity in toRespond.Preguntas)
                 {
-                }
-                _encuesta.Preguntas.Add(new Pregunta
-                {
-                    Id = pregunta.Id,
-                    Texto = pregunta.Texto
-                });
-            }
-
-            EncuestaGlobal addEncuesta = _repo.Add(_encuesta);
-            return CreatedAtRoute("GetEncuesta", new
-            {
-                id = addEncuesta.Id
-            }, new
-            {
-                Encuesta = DtoGet(addEncuesta)
-            });
-        }
-
-        [HttpPost]
-        [Authorize]
-        public IActionResult Respond([FromBody] RespondDto dto)
-        {
-            if (dto == null)
-                return BadRequest();
-
-            var ident = User.Identity as ClaimsIdentity;
-            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            AppUser appUser = _userManager.Users.SingleOrDefault(r => r.Id == userID);
-            Alumno alumno = _alumnos.GetById(appUser.Id);
-
-            EncuestaGlobal encuesta = _repo.GetById(dto.EncuestaId);
-            if(encuesta == null)
-            {
-                return NotFound();
-            }
-
-            foreach(Pregunta pregunta in encuesta.Preguntas)
-            {
-                foreach(RespondPreguntaDto r in dto.List)
-                {
-                    if(r.PreguntaId == pregunta.Id)
+                    if(pEntity.Id == pregunta.Id)
                     {
-                        //var index = encuesta.Preguntas.IndexOf(pregunta);
-                        //var respuesta = new Respuesta()
-                        //{
-                        //    Alumno = alumno,
-                        //    Valores = new List<Valor>()
-                        //};
+                        if(pEntity is PreguntaEL)
+                        {
+                            var xPregunta = (EGRespondPreguntaLibre)pregunta;
+                            var el = (PreguntaLibre)pEntity;
+                            el.Respuestas.Add(new RespuestaLibre
+                            {
+                                Texto = xPregunta.Respuesta.Texto
+                            });
+                        } else if(pEntity is PreguntaMO)
+                        {
+                            var xPregunta = (EGRespondPreguntaVariada)pregunta;
+                            var el = (PreguntaMO)pEntity;
+                            foreach (EGRespondRespuestaVariada pv in xPregunta.Respuestas)
+                            {
+                                foreach(int opcion in pv.Opciones)
+                                {
+                                    var respuesta = new RespuestaMO
+                                    {
+                                        Alumno = alumno,
+                                        Pregunta = pEntity,
+                                        Respuestas = new List<OpcionRespuesta>()
+                                    };
+                                    
+                                    var toRespondRespuesta = new OpcionRespuesta
+                                    {
+                                        Respuesta = respuesta,
+                                        OpcionId = opcion
+                                    };
 
-                        //foreach(string valor in r.Valores)
-                        //{
-                        //    respuesta.Valores.Add(new Valor() {
-                        //        Contenido = valor
-                        //    });
-                        //}
+                                    respuesta.Respuestas.Add(toRespondRespuesta);
+                                    el.Respuestas.Add(respuesta);
+                                }
+                            }
+                        } else if(pEntity is PreguntaUO)
+                        {
+                            var xPregunta = (EGRespondPreguntaVariada)pregunta;
+                            var el = (PreguntaUO)pEntity;
+                            foreach (EGRespondRespuestaVariada pv in xPregunta.Respuestas)
+                            {
+                                foreach (int opcion in pv.Opciones)
+                                {
+                                    var toRespondRespuesta = new RespuestaUO
+                                    {
+                                        Alumno = alumno,
+                                        Pregunta = pEntity,
+                                        RespuestaOpcion = new PreguntaOpcion
+                                        {
+                                            Id = pv.Opciones.First()
+                                        }
+                                    };
 
-                        //encuesta.Preguntas[index].Respuestas.Add(respuesta);
+                                    el.Respuestas.Add(toRespondRespuesta);
+                                }
+                            }
+                        }
                     }
                 }
+
             }
 
-            _repo.Update(encuesta);
+            _repo.Update(toRespond);
             return Ok();
         }
 
-        public PostEncuestaGlobalDto DtoGet(EncuestaGlobal encuesta)
+        public EGGetEncuesta DtoGet(EncuestaGlobal encuesta)
         {
-            //PostEncuestaGlobalDto encuestaDto = new PostEncuestaGlobalDto
-            //{
-            //    Id = encuesta.Id,
-            //    Titulo = encuesta.Titulo,
-            //    Descripcion = encuesta.Descripcion,
-            //    FechaCreacion = encuesta.FechaCreacion,
-            //    Preguntas = new List<PostPreguntaDto>()
-            //};
-
-            //foreach (Pregunta pregunta in encuesta.Preguntas)
-            //{
-            //    encuestaDto.Preguntas.Add(new PostPreguntaDto
-            //    {
-            //        Id = pregunta.Id,
-            //        Texto = pregunta.Texto,
-            //        Tipo = pregunta.Tipo
-            //    });
-            //}
-
-            return null;
-        }
-
-        public GetByIdEncuestaDto ByIdDtoGet(EncuestaGlobal encuesta)
-        {
-            GetByIdEncuestaDto encuestaDto = new GetByIdEncuestaDto
+            var product = new EGGetEncuesta()
             {
                 Id = encuesta.Id,
                 Titulo = encuesta.Titulo,
                 Descripcion = encuesta.Descripcion,
-                FechaCreacion = encuesta.FechaCreacion,
-                Preguntas = new List<GetByIdPreguntaDto>()
+                Preguntas = new List<EGGetPregunta>()
             };
 
-            //foreach (Pregunta pregunta in encuesta.Preguntas)
-            //{
-            //    GetByIdPreguntaDto p = new GetByIdPreguntaDto
-            //    {
-            //        Id = pregunta.Id,
-            //        Texto = pregunta.Texto,
-            //        Tipo = pregunta.Tipo,
-            //        Respuestas = new List<GetByIdRespuestaDto>()
-            //    };
-            //    foreach(Respuesta r in pregunta.Respuestas)
-            //    {
-            //        var _r = new GetByIdRespuestaDto
-            //        {
-            //            Id = r.Id,
-            //            Valores = new List<string>()
-            //        };
-            //        foreach (Valor v in r.Valores)
-            //        {
-            //            _r.Valores.Add(v.Contenido);
-            //        }
-            //        p.Respuestas.Add(_r);
-            //    }
-            //}
+            foreach (Pregunta pregunta in encuesta.Preguntas)
+            {
+                EGGetPregunta productPregunta = new EGGetPregunta();
+                if (pregunta is PreguntaLibre)
+                {
+                    var proxyProductPregunta = new EGGetPreguntaLibre()
+                    {
+                        Respuestas = new List<EGGetRespuesta>(),
+                        Texto = pregunta.Texto
+                    };
 
-            return encuestaDto;
+                    var _pregunta = (PreguntaLibre)pregunta;
+                    if (_pregunta.Respuestas != null)
+                    {
+                        foreach (RespuestaLibre rl in _pregunta.Respuestas)
+                        {
+                            proxyProductPregunta.Respuestas.Add(new EGGetRespuestaLibre
+                            {
+                                Texto = rl.Texto
+                            });
+                        }
+                    }
+
+                    product.Preguntas.Add(proxyProductPregunta);
+                }
+                else if (pregunta is PreguntaVariada)
+                {
+                    var proxyProductPregunta = new EGGetPreguntaVariada()
+                    {
+                        Opciones = new List<EGGetOpcion>(),
+                        Respuestas = new List<EGGetRespuesta>(),
+                        Texto = pregunta.Texto,
+                        Tipo = -1
+                    };
+
+                    if (pregunta is PreguntaMO)
+                    {
+                        proxyProductPregunta.Tipo = 3;
+                    } else if (pregunta is PreguntaUO)
+                    {
+                        proxyProductPregunta.Tipo = 1;
+                    } else if (pregunta is PreguntaEL)
+                    {
+                        proxyProductPregunta.Tipo = 0;
+                    }
+
+                    var _pregunta = (PreguntaVariada)pregunta;
+                    foreach (PreguntaOpcion opcion in _pregunta.Opciones)
+                    {
+                        var cast = opcion;
+                        proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                        {
+                            Texto = opcion.Valor
+                        });
+                    }
+
+                    if (_pregunta.Respuestas != null)
+                    {
+                        foreach (RespuestaLimitada rl in _pregunta.Respuestas)
+                        {
+                            if(rl is RespuestaUO)
+                            {
+                                proxyProductPregunta.Respuestas.Add(new EGGetRespuestaVariada
+                                {
+                                    OpcionId = ((RespuestaUO)rl).RespuestaOpcion.Id,
+                                    Text = ((RespuestaUO)rl).RespuestaOpcion.Valor
+                                });
+                            } else if(rl is RespuestaMO)
+                            {
+                                var xRl = (RespuestaMO)rl;
+                                foreach(PreguntaOpcion opcion in xRl.RespuestaOpciones)
+                                {
+                                    proxyProductPregunta.Respuestas.Add(new EGGetRespuestaVariada
+                                    {
+                                        OpcionId = opcion.Id,
+                                        Text = opcion.Valor
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    product.Preguntas.Add(proxyProductPregunta);
+                }
+            }
+            return product;
         }
 
+        [HttpPost]
+        public IActionResult Post([FromBody] EGPostEncuesta dto)
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Adscripto adscripto = _adscriptos.GetById(userID);
+
+            EncuestaGlobal toPost = new EncuestaGlobal
+            {
+                Titulo = dto.Titulo,
+                Descripcion = dto.Descripcion,
+                FechaCreacion = DateTime.Now,
+                Adscripto = adscripto,
+                Preguntas = new List<Pregunta>()
+            };
+
+            foreach (EGPostPregunta dtoPregunta in dto.Preguntas)
+            {
+                switch (dtoPregunta.Tipo)
+                {
+                    case 0:
+                        toPost.Preguntas.Add(new PreguntaEL
+                        {
+                            Texto = dtoPregunta.Texto,
+                            Respuestas = new List<RespuestaLibre>()
+                        });
+                        break;
+                    case 1:
+                        var preguntaToPost = new PreguntaUO
+                        {
+                            Texto = dtoPregunta.Texto,
+                            Opciones = new List<PreguntaOpcion>()
+                        };
+
+                        foreach (string dtoRespuesta in dtoPregunta.Respuestas)
+                        {
+                            preguntaToPost.Opciones.Add(new PreguntaOpcion
+                            {
+                                Pregunta = preguntaToPost,
+                                Valor = dtoRespuesta
+                            });
+                        }
+                        toPost.Preguntas.Add(preguntaToPost);
+                        break;
+                    case 2:
+                    case 3:
+                        var moPreguntaToPost = new PreguntaMO
+                        {
+                            Texto = dtoPregunta.Texto,
+                            Opciones = new List<PreguntaOpcion>()
+                        };
+
+                        foreach (string dtoRespuesta in dtoPregunta.Respuestas)
+                        {
+                            moPreguntaToPost.Opciones.Add(new PreguntaOpcion
+                            {
+                                Pregunta = moPreguntaToPost,
+                                Valor = dtoRespuesta
+                            });
+                        }
+                        toPost.Preguntas.Add(moPreguntaToPost);
+                        break;
+                }
+            }
+
+            _repo.Add(toPost);
+            return Ok(DtoGet(toPost));
+        }
     }
 
-    public class RespondDto
+    public class EGRespondPregunta
     {
-        public int EncuestaId { get; set; }
-        public List<RespondPreguntaDto> List { get; set; }
+        public int Id { get; set; }
     }
 
-    public class PostEncuestaGlobalDto
+    public class EGRespondPreguntaVariada : EGRespondPregunta
+    {
+        public List<EGRespondRespuestaVariada> Respuestas { get; set; }
+    }
+
+    public class EGRespondPreguntaLibre : EGRespondPregunta
+    {
+        public EGRespondRespuestaLibre Respuesta { get; set; }
+    }
+
+    public class EGRespondRespuesta
+    {
+        
+    }
+
+    public class EGRespondRespuestaLibre : EGRespondRespuesta
+    {
+        public string Texto { get; set; }
+    }
+
+    public class EGRespondRespuestaVariada : EGRespondRespuesta
+    {
+        public List<int> Opciones { get; set; }
+    }
+
+    public class EGRespond
+    {
+        public int Id { get; internal set; }
+        internal IEnumerable<EGGetRespuesta> Respuestas { get; set; }
+        internal IEnumerable<EGRespondPregunta> Preguntas { get; set; }
+    }
+
+    public class EGGetEncuesta
     {
         public int Id { get; set; }
         public string Titulo { get; set; }
-        public DateTime FechaCreacion { get; set; }
         public string Descripcion { get; set; }
-        public List<PostPreguntaDto> Preguntas { get; set; }
+        public List<EGGetPregunta> Preguntas { get; set; }
     }
 
-    public class GetByIdEncuestaDto
+    public class EGGetPregunta
     {
-        public int Id { get; set; }
+        public string Texto { get; set; }
+        public int Tipo { get; set; }
+    }
+
+    public class EGGetPreguntaLibre : EGGetPregunta
+    {
+        public List<EGGetRespuesta> Respuestas { get; set; }
+    }
+    public class EGGetPreguntaVariada : EGGetPregunta
+    {
+        public List<EGGetOpcion> Opciones { get; set; }
+        public List<EGGetRespuesta> Respuestas { get; set; }
+    }
+    public class EGGetOpcion
+    {
+        public string Texto { get; set; }
+    }
+
+    public class EGGetRespuesta
+    {
+        public string Text { get; set; }
+        public int OpcionId { get; set; }
+    }
+
+    public class EGGetRespuestaLibre : EGGetRespuesta
+    {
+        public string Texto { get; set; }
+    }
+
+    public class EGGetRespuestaVariada : EGGetRespuesta
+    {
+
+    }
+
+    public class EGPostEncuesta
+    {
         public string Titulo { get; set; }
-        public DateTime FechaCreacion { get; set; }
         public string Descripcion { get; set; }
-        public List<GetByIdPreguntaDto> Preguntas { get; set; }
+        public List<EGPostPregunta> Preguntas { get; set; }
     }
 
-    public class GetByIdPreguntaDto
+    public class EGPostPregunta
     {
-        public int Id { get; set; }
         public string Texto { get; set; }
         public int Tipo { get; set; }
-        public List<GetByIdRespuestaDto> Respuestas { get; set; }
+        public List<string> Respuestas { get; set; }
     }
 
-    public class GetByIdRespuestaDto
-    {
-        public int Id { get; set; }
-        public List<string> Valores { get; set; }
-    }
 
-    public class PostPreguntaDto
-    {
-        public int Id { get; set; }
-        public int Tipo { get; set; }
-        public string Texto { get; set; }
-    }
-
-    public class RespuestaDto
-    {
-        public int Id { get; set; }
-        public List<string> Valores { get; set; }
-    }
-
-    public class RespondPreguntaDto
-    {
-        public int PreguntaId { get; set; }
-        public List<string> Valores { get; set; }
-    }
 }

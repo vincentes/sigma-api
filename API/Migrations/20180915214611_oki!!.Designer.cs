@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    [Migration("20180823121427_asdasojidjasiod")]
-    partial class asdasojidjasiod
+    [Migration("20180915214611_oki!!")]
+    partial class oki
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -18,6 +18,26 @@ namespace API.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.0-rtm-30799")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("API.Models.EncuestaGlobal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AdscriptoId");
+
+                    b.Property<string>("Descripcion");
+
+                    b.Property<DateTime>("FechaCreacion");
+
+                    b.Property<string>("Titulo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdscriptoId");
+
+                    b.ToTable("EncuestasGlobales");
+                });
 
             modelBuilder.Entity("API.Models.Event", b =>
                 {
@@ -34,30 +54,6 @@ namespace API.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Event");
                 });
 
-            modelBuilder.Entity("API.Models.EventNotification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Body");
-
-                    b.Property<DateTime>("DateSent");
-
-                    b.Property<int>("EventId");
-
-                    b.Property<string>("Title");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EventNotifications");
-                });
-
             modelBuilder.Entity("API.Models.EventoGrupo", b =>
                 {
                     b.Property<int>("Id")
@@ -72,9 +68,13 @@ namespace API.Migrations
 
                     b.Property<int>("GrupoId");
 
+                    b.Property<bool>("Notified");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EventoId");
+
+                    b.HasIndex("GrupoId");
 
                     b.ToTable("EventoGrupo");
 
@@ -180,6 +180,112 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Orientaciones");
+                });
+
+            modelBuilder.Entity("API.Models.Pregunta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
+
+                    b.Property<int?>("EncuestaGlobalId");
+
+                    b.Property<string>("Texto");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EncuestaGlobalId");
+
+                    b.ToTable("Preguntas");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Pregunta");
+                });
+
+            modelBuilder.Entity("API.Models.PreguntaOpcion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("PreguntaId");
+
+                    b.Property<string>("Valor");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreguntaId");
+
+                    b.ToTable("PreguntaOpcion");
+                });
+
+            modelBuilder.Entity("API.Models.Respuesta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AlumnoId");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
+
+                    b.Property<int>("PreguntaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlumnoId");
+
+                    b.HasIndex("PreguntaId");
+
+                    b.ToTable("Respuestas");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Respuesta");
+                });
+
+            modelBuilder.Entity("API.Models.Tarea", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Contenido");
+
+                    b.Property<string>("DocenteId");
+
+                    b.Property<int>("EventoId");
+
+                    b.Property<int>("MateriaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocenteId");
+
+                    b.HasIndex("EventoId");
+
+                    b.HasIndex("MateriaId");
+
+                    b.ToTable("Tareas");
+                });
+
+            modelBuilder.Entity("API.Models.TareaGrupo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Date");
+
+                    b.Property<int>("GrupoId");
+
+                    b.Property<bool>("Notified");
+
+                    b.Property<int>("TareaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrupoId");
+
+                    b.HasIndex("TareaId");
+
+                    b.ToTable("TareaGrupo");
                 });
 
             modelBuilder.Entity("API.Models.TareaImagen", b =>
@@ -431,36 +537,10 @@ namespace API.Migrations
                     b.HasDiscriminator().HasValue("Parcial");
                 });
 
-            modelBuilder.Entity("API.Models.Tarea", b =>
-                {
-                    b.HasBaseType("API.Models.Event");
-
-                    b.Property<string>("Contenido");
-
-                    b.Property<string>("DocenteId")
-                        .HasColumnName("Tarea_DocenteId");
-
-                    b.Property<int>("MateriaId")
-                        .HasColumnName("Tarea_MateriaId");
-
-                    b.HasIndex("DocenteId");
-
-                    b.HasIndex("MateriaId");
-
-                    b.ToTable("Tarea");
-
-                    b.HasDiscriminator().HasValue("Tarea");
-                });
-
             modelBuilder.Entity("API.Models.EscritoGrupo", b =>
                 {
                     b.HasBaseType("API.Models.EventoGrupo");
 
-                    b.Property<int?>("EscritoId");
-
-                    b.HasIndex("EscritoId");
-
-                    b.HasIndex("GrupoId");
 
                     b.ToTable("EscritoGrupo");
 
@@ -471,31 +551,62 @@ namespace API.Migrations
                 {
                     b.HasBaseType("API.Models.EventoGrupo");
 
-                    b.Property<int?>("ParcialId");
-
-                    b.HasIndex("GrupoId");
-
-                    b.HasIndex("ParcialId");
 
                     b.ToTable("ParcialGrupo");
 
                     b.HasDiscriminator().HasValue("ParcialGrupo");
                 });
 
-            modelBuilder.Entity("API.Models.TareaGrupo", b =>
+            modelBuilder.Entity("API.Models.PreguntaLibre", b =>
                 {
-                    b.HasBaseType("API.Models.EventoGrupo");
+                    b.HasBaseType("API.Models.Pregunta");
 
-                    b.Property<int?>("TareaId");
 
-                    b.HasIndex("GrupoId")
-                        .HasName("IX_EventoGrupo_GrupoId1");
+                    b.ToTable("PreguntaLibre");
 
-                    b.HasIndex("TareaId");
+                    b.HasDiscriminator().HasValue("PreguntaLibre");
+                });
 
-                    b.ToTable("TareaGrupo");
+            modelBuilder.Entity("API.Models.PreguntaVariada", b =>
+                {
+                    b.HasBaseType("API.Models.Pregunta");
 
-                    b.HasDiscriminator().HasValue("TareaGrupo");
+
+                    b.ToTable("PreguntaVariada");
+
+                    b.HasDiscriminator().HasValue("PreguntaVariada");
+                });
+
+            modelBuilder.Entity("API.Models.RespuestaLibre", b =>
+                {
+                    b.HasBaseType("API.Models.Respuesta");
+
+                    b.Property<int?>("PreguntaLibreId");
+
+                    b.Property<string>("Texto");
+
+                    b.HasIndex("PreguntaLibreId");
+
+                    b.ToTable("RespuestaLibre");
+
+                    b.HasDiscriminator().HasValue("RespuestaLibre");
+                });
+
+            modelBuilder.Entity("API.Models.RespuestaLimitada", b =>
+                {
+                    b.HasBaseType("API.Models.Respuesta");
+
+                    b.Property<int?>("PreguntaVariadaId");
+
+                    b.Property<int>("RespuestaOpcionId");
+
+                    b.HasIndex("PreguntaVariadaId");
+
+                    b.HasIndex("RespuestaOpcionId");
+
+                    b.ToTable("RespuestaLimitada");
+
+                    b.HasDiscriminator().HasValue("RespuestaLimitada");
                 });
 
             modelBuilder.Entity("API.Models.AppUser", b =>
@@ -508,6 +619,16 @@ namespace API.Migrations
                     b.HasDiscriminator().HasValue("AppUser");
                 });
 
+            modelBuilder.Entity("API.Models.PreguntaMO", b =>
+                {
+                    b.HasBaseType("API.Models.PreguntaVariada");
+
+
+                    b.ToTable("PreguntaMO");
+
+                    b.HasDiscriminator().HasValue("PreguntaMO");
+                });
+
             modelBuilder.Entity("API.Models.Admin", b =>
                 {
                     b.HasBaseType("API.Models.AppUser");
@@ -516,6 +637,16 @@ namespace API.Migrations
                     b.ToTable("Admin");
 
                     b.HasDiscriminator().HasValue("Admin");
+                });
+
+            modelBuilder.Entity("API.Models.Adscripto", b =>
+                {
+                    b.HasBaseType("API.Models.AppUser");
+
+
+                    b.ToTable("Adscripto");
+
+                    b.HasDiscriminator().HasValue("Adscripto");
                 });
 
             modelBuilder.Entity("API.Models.Alumno", b =>
@@ -544,23 +675,23 @@ namespace API.Migrations
                     b.HasDiscriminator().HasValue("Docente");
                 });
 
-            modelBuilder.Entity("API.Models.EventNotification", b =>
+            modelBuilder.Entity("API.Models.EncuestaGlobal", b =>
                 {
-                    b.HasOne("API.Models.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("API.Models.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.HasOne("API.Models.Adscripto", "Adscripto")
+                        .WithMany("Encuestas")
+                        .HasForeignKey("AdscriptoId");
                 });
 
             modelBuilder.Entity("API.Models.EventoGrupo", b =>
                 {
                     b.HasOne("API.Models.Event", "Evento")
-                        .WithMany("EventoGrupos")
+                        .WithMany("GruposAsignados")
                         .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.Grupo", "Grupo")
+                        .WithMany()
+                        .HasForeignKey("GrupoId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -603,6 +734,63 @@ namespace API.Migrations
                     b.HasOne("API.Models.Orientacion", "Orientacion")
                         .WithMany("MateriaOrientacion")
                         .HasForeignKey("OrientacionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("API.Models.Pregunta", b =>
+                {
+                    b.HasOne("API.Models.EncuestaGlobal")
+                        .WithMany("Preguntas")
+                        .HasForeignKey("EncuestaGlobalId");
+                });
+
+            modelBuilder.Entity("API.Models.PreguntaOpcion", b =>
+                {
+                    b.HasOne("API.Models.PreguntaVariada", "Pregunta")
+                        .WithMany("Opciones")
+                        .HasForeignKey("PreguntaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("API.Models.Respuesta", b =>
+                {
+                    b.HasOne("API.Models.Alumno", "Alumno")
+                        .WithMany("Respuestas")
+                        .HasForeignKey("AlumnoId");
+
+                    b.HasOne("API.Models.Pregunta", "Pregunta")
+                        .WithMany()
+                        .HasForeignKey("PreguntaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("API.Models.Tarea", b =>
+                {
+                    b.HasOne("API.Models.Docente", "Docente")
+                        .WithMany("Tareas")
+                        .HasForeignKey("DocenteId");
+
+                    b.HasOne("API.Models.Event", "Evento")
+                        .WithMany()
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.Materia", "Materia")
+                        .WithMany("Tareas")
+                        .HasForeignKey("MateriaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("API.Models.TareaGrupo", b =>
+                {
+                    b.HasOne("API.Models.Grupo", "Grupo")
+                        .WithMany("TareaGrupo")
+                        .HasForeignKey("GrupoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("API.Models.Tarea", "Tarea")
+                        .WithMany("GruposAsignados")
+                        .HasForeignKey("TareaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -695,53 +883,23 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("API.Models.Tarea", b =>
+            modelBuilder.Entity("API.Models.RespuestaLibre", b =>
                 {
-                    b.HasOne("API.Models.Docente", "Docente")
-                        .WithMany("Tareas")
-                        .HasForeignKey("DocenteId");
-
-                    b.HasOne("API.Models.Materia", "Materia")
-                        .WithMany("Tareas")
-                        .HasForeignKey("MateriaId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("API.Models.PreguntaLibre")
+                        .WithMany("Respuestas")
+                        .HasForeignKey("PreguntaLibreId");
                 });
 
-            modelBuilder.Entity("API.Models.EscritoGrupo", b =>
+            modelBuilder.Entity("API.Models.RespuestaLimitada", b =>
                 {
-                    b.HasOne("API.Models.Escrito")
-                        .WithMany("GruposAsignados")
-                        .HasForeignKey("EscritoId");
+                    b.HasOne("API.Models.PreguntaVariada")
+                        .WithMany("Respuestas")
+                        .HasForeignKey("PreguntaVariadaId");
 
-                    b.HasOne("API.Models.Grupo", "Grupo")
-                        .WithMany()
-                        .HasForeignKey("GrupoId")
+                    b.HasOne("API.Models.PreguntaOpcion", "RespuestaOpcion")
+                        .WithMany("RespuestasAsociadas")
+                        .HasForeignKey("RespuestaOpcionId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("API.Models.ParcialGrupo", b =>
-                {
-                    b.HasOne("API.Models.Grupo", "Grupo")
-                        .WithMany()
-                        .HasForeignKey("GrupoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("API.Models.Parcial")
-                        .WithMany("GruposAsignados")
-                        .HasForeignKey("ParcialId");
-                });
-
-            modelBuilder.Entity("API.Models.TareaGrupo", b =>
-                {
-                    b.HasOne("API.Models.Grupo", "Grupo")
-                        .WithMany("TareaGrupo")
-                        .HasForeignKey("GrupoId")
-                        .HasConstraintName("FK_EventoGrupo_Grupos_GrupoId1")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("API.Models.Tarea")
-                        .WithMany("TareaGrupos")
-                        .HasForeignKey("TareaId");
                 });
 
             modelBuilder.Entity("API.Models.Alumno", b =>

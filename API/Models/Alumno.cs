@@ -11,5 +11,6 @@ namespace API.Models
         public virtual int GrupoId { get; set; }
         [ForeignKey("GrupoId")]
         public virtual Grupo Grupo { get; set; }
+        public List<Respuesta> Respuestas { get; set; }
     }
 }

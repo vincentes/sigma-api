@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class Cambio : Aviso
+    public class CambioSalon : Aviso
     {
         public int HoraTurno { get; set; }
     }

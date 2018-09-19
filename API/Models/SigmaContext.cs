@@ -22,7 +22,6 @@ namespace API.Models
         public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
         public virtual DbSet<ParcialGrupo> ParcialGrupo { get; set; }
         public virtual DbSet<EscritoGrupo> EscritoGrupo { get; set; }
-
         public virtual DbSet<EventoGrupo> EventoGrupo { get; set; }
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
@@ -30,6 +29,17 @@ namespace API.Models
         public virtual DbSet<Event> Events { get; set; }
         public virtual DbSet<EncuestaGlobal> EncuestasGlobales { get; set; }
         public virtual DbSet<Adscripto> Adscriptos { get; set; }
+        public virtual DbSet<Pregunta> Preguntas { get; set; }
+        public virtual DbSet<PreguntaVariada> PreguntasVariadas { get; set; }
+        public virtual DbSet<PreguntaLibre> PreguntasLibres { get; set; }
+        public virtual DbSet<PreguntaMO> PreguntasMO { get; set; }
+        public virtual DbSet<PreguntaMO> PreguntasEL { get; set; }
+        public virtual DbSet<PreguntaMO> PreguntasUO { get; set; }
+        public virtual DbSet<Respuesta> Respuestas { get; set; }
+        public virtual DbSet<RespuestaLibre> RespuestasLibres { get; set; }
+        public virtual DbSet<RespuestaLimitada> RespuestasLimitadas { get; set; }
+
+
 
         public SigmaContext(DbContextOptions options) : base(options)
         {
@@ -149,6 +159,29 @@ namespace API.Models
                 .HasOne(d => d.Adscripto)
                 .WithMany(p => p.Encuestas)
                 .HasForeignKey(d => d.AdscriptoId);
+
+            builder.Entity<PreguntaOpcion>()
+                .HasOne(e => e.Pregunta)
+                .WithMany(p => p.Opciones)
+                .HasForeignKey(e => e.PreguntaId);
+
+            builder.Entity<Respuesta>()
+                .HasOne(e => e.Pregunta);
+
+            builder.Entity<OpcionRespuesta>()
+                .HasOne(e => e.Opcion)
+                .WithMany(p => p.OpcionRespuestas)
+                .HasForeignKey(e => e.Id);
+
+            builder.Entity<OpcionRespuesta>()
+                .HasOne(e => e.Respuesta)
+                .WithMany(p => p.Respuestas)
+                .HasForeignKey(e => e.Id);
+
+            builder.Entity<Respuesta>()
+                .HasOne(e => e.Alumno)
+                .WithMany(p => p.Respuestas)
+                .HasForeignKey(e => e.AlumnoId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
