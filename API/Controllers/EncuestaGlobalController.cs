@@ -17,16 +17,20 @@ namespace API.Controllers
     public class EncuestaGlobalController : Controller
     {
         private readonly IRepository<EncuestaGlobal> _repo;
+        private readonly IRepository<Pregunta> _preguntas;
+        private readonly IRepository<PreguntaOpcion> _opciones;
         private readonly IUserRepository<Adscripto> _adscriptos;
         private readonly IUserRepository<Alumno> _alumnos;
         private readonly UserManager<AppUser> _userManager;
 
-        public EncuestaGlobalController(IRepository<EncuestaGlobal> repo, IUserRepository<Adscripto> adscriptos, IUserRepository<Alumno> alumnos, UserManager<AppUser> userManager)
+        public EncuestaGlobalController(IRepository<EncuestaGlobal> repo, IRepository<PreguntaOpcion> opciones, IRepository<Pregunta> preguntas, IUserRepository<Adscripto> adscriptos, IUserRepository<Alumno> alumnos, UserManager<AppUser> userManager)
         {
             this._repo = repo;
             this._adscriptos = adscriptos;
             this._alumnos = alumnos;
             this._userManager = userManager;
+            this._preguntas = preguntas;
+            this._opciones = opciones;
         }
 
         [HttpGet("{id}", Name = "GetEncuestaGlobal")]
@@ -44,12 +48,70 @@ namespace API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Alumno alumno = _alumnos.GetById(userID);
+
             IEnumerable<EncuestaGlobal> list = _repo.GetAll();
             List<EGGetEncuesta> dtoList = new List<EGGetEncuesta>();
 
             foreach (EncuestaGlobal eg in list)
             {
-                dtoList.Add(DtoGet(eg));
+                List<bool> preguntaRespuestas = new List<bool>();
+                foreach (Pregunta pregunta in eg.Preguntas)
+                {
+                    var preguntaRespondida = false;
+                    if(pregunta is PreguntaMO)
+                    {
+                        var xPregunta = (PreguntaMO)pregunta;
+                        foreach(PreguntaOpcion opcion in xPregunta.Opciones)
+                        {
+                            foreach(Respuesta respuesta in opcion.RespuestasAsociadas)
+                            {
+                                if(respuesta.AlumnoId == alumno.Id)
+                                {
+                                    preguntaRespondida = true;
+                                }
+                            }
+                        }
+                    } else if(pregunta is PreguntaLibre)
+                    {
+                        var xPregunta = (PreguntaLibre)pregunta;
+                        foreach(RespuestaLibre respuesta in xPregunta.Respuestas)
+                        {
+                            if (respuesta.AlumnoId == alumno.Id)
+                            {
+                                preguntaRespondida = true;
+                            }
+                        }
+                    } else
+                    {
+                        var xPregunta = (PreguntaVariada)pregunta;
+                        foreach (RespuestaLimitada respuesta in xPregunta.Respuestas)
+                        {
+                            if (respuesta.AlumnoId == alumno.Id)
+                            {
+                                preguntaRespondida = true;
+                            }
+                        }
+                    }
+
+                    if (preguntaRespondida)
+                    {
+                        preguntaRespuestas.Add(true);
+                        eg.Preguntas.Remove(pregunta);
+                        break;
+                    }
+                    else
+                    {
+                        preguntaRespuestas.Add(false);
+                    }
+                }
+
+                if(preguntaRespuestas.Contains(false))
+                {
+                    dtoList.Add(DtoGet(eg));
+                }
             }
 
             return Ok(dtoList);
@@ -76,84 +138,89 @@ namespace API.Controllers
             return Ok(dtoList);
         }
 
+        public class RespondMOPreguntaDto {
+            public int Id { get; set; }
+            public IEnumerable<int> Opciones { get; set; }
+        }
+
+        public class RespondUOPreguntaDto
+        {
+            public int Id { get; set; }
+            public int Opcion { get; set; }
+        }
+
+        public class RespondELPreguntaDto
+        {
+            public int Id { get; set; }
+            public string Texto { get; set; }
+        }
+
         [HttpPost]
-        public IActionResult Respond([FromBody] EGRespond encuesta)
+        public IActionResult RespondMOPregunta([FromBody] RespondMOPreguntaDto dto)
         {
             var ident = User.Identity as ClaimsIdentity;
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             Alumno alumno = _alumnos.GetById(userID);
 
-            var toRespond = _repo.GetById(encuesta.Id);
-
-            foreach (EGRespondPregunta pregunta in encuesta.Preguntas)
+            PreguntaMO pregunta = (PreguntaMO) _preguntas.GetById(dto.Id);
+            RespuestaMO respuesta = new RespuestaMO
             {
-                foreach (Pregunta pEntity in toRespond.Preguntas)
+                Alumno = alumno,
+                Pregunta = pregunta
+            };
+
+            foreach(int opcion in dto.Opciones)
+            {
+                respuesta.Respuestas.Add(new OpcionRespuesta
                 {
-                    if(pEntity.Id == pregunta.Id)
-                    {
-                        if(pEntity is PreguntaEL)
-                        {
-                            var xPregunta = (EGRespondPreguntaLibre)pregunta;
-                            var el = (PreguntaLibre)pEntity;
-                            el.Respuestas.Add(new RespuestaLibre
-                            {
-                                Texto = xPregunta.Respuesta.Texto
-                            });
-                        } else if(pEntity is PreguntaMO)
-                        {
-                            var xPregunta = (EGRespondPreguntaVariada)pregunta;
-                            var el = (PreguntaMO)pEntity;
-                            foreach (EGRespondRespuestaVariada pv in xPregunta.Respuestas)
-                            {
-                                foreach(int opcion in pv.Opciones)
-                                {
-                                    var respuesta = new RespuestaMO
-                                    {
-                                        Alumno = alumno,
-                                        Pregunta = pEntity,
-                                        Respuestas = new List<OpcionRespuesta>()
-                                    };
-                                    
-                                    var toRespondRespuesta = new OpcionRespuesta
-                                    {
-                                        Respuesta = respuesta,
-                                        OpcionId = opcion
-                                    };
-
-                                    respuesta.Respuestas.Add(toRespondRespuesta);
-                                    el.Respuestas.Add(respuesta);
-                                }
-                            }
-                        } else if(pEntity is PreguntaUO)
-                        {
-                            var xPregunta = (EGRespondPreguntaVariada)pregunta;
-                            var el = (PreguntaUO)pEntity;
-                            foreach (EGRespondRespuestaVariada pv in xPregunta.Respuestas)
-                            {
-                                foreach (int opcion in pv.Opciones)
-                                {
-                                    var toRespondRespuesta = new RespuestaUO
-                                    {
-                                        Alumno = alumno,
-                                        Pregunta = pEntity,
-                                        RespuestaOpcion = new PreguntaOpcion
-                                        {
-                                            Id = pv.Opciones.First()
-                                        }
-                                    };
-
-                                    el.Respuestas.Add(toRespondRespuesta);
-                                }
-                            }
-                        }
-                    }
-                }
-
+                    Opcion = _opciones.GetById(opcion),
+                    Respuesta = respuesta
+                });
             }
 
-            _repo.Update(toRespond);
+            _preguntas.Update(pregunta);
             return Ok();
         }
+
+        [HttpPost]
+        public IActionResult RespondUOPregunta([FromBody] RespondUOPreguntaDto dto)
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Alumno alumno = _alumnos.GetById(userID);
+
+            PreguntaVariada pregunta = (PreguntaVariada)_preguntas.GetById(dto.Id);
+            RespuestaUO respuesta = new RespuestaUO
+            {
+                Alumno = alumno,
+                Pregunta = pregunta
+            };
+
+            respuesta.RespuestaOpcion = _opciones.GetById(dto.Opcion);
+            pregunta.Respuestas.Add(respuesta);
+            _preguntas.Update(pregunta);
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult RespondELPregunta([FromBody] RespondELPreguntaDto dto)
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Alumno alumno = _alumnos.GetById(userID);
+
+            PreguntaEL pregunta = (PreguntaEL)_preguntas.GetById(dto.Id);
+            RespuestaLibre respuesta = new RespuestaLibre
+            {
+                Alumno = alumno,
+                Pregunta = pregunta
+            };
+
+            respuesta.Texto = dto.Texto;
+            _preguntas.Update(pregunta);
+            return Ok();
+        }
+
 
         public EGGetEncuesta DtoGet(EncuestaGlobal encuesta)
         {
@@ -172,6 +239,7 @@ namespace API.Controllers
                 {
                     var proxyProductPregunta = new EGGetPreguntaLibre()
                     {
+                        Id = pregunta.Id,
                         Respuestas = new List<EGGetRespuesta>(),
                         Texto = pregunta.Texto
                     };
@@ -194,10 +262,11 @@ namespace API.Controllers
                 {
                     var proxyProductPregunta = new EGGetPreguntaVariada()
                     {
+                        Id = pregunta.Id,
                         Opciones = new List<EGGetOpcion>(),
                         Respuestas = new List<EGGetRespuesta>(),
                         Texto = pregunta.Texto,
-                        Tipo = -1
+                        Tipo = 2
                     };
 
                     if (pregunta is PreguntaMO)
@@ -217,6 +286,7 @@ namespace API.Controllers
                         var cast = opcion;
                         proxyProductPregunta.Opciones.Add(new EGGetOpcion()
                         {
+                            Id = opcion.Id,
                             Texto = opcion.Valor
                         });
                     }
@@ -322,43 +392,6 @@ namespace API.Controllers
         }
     }
 
-    public class EGRespondPregunta
-    {
-        public int Id { get; set; }
-    }
-
-    public class EGRespondPreguntaVariada : EGRespondPregunta
-    {
-        public List<EGRespondRespuestaVariada> Respuestas { get; set; }
-    }
-
-    public class EGRespondPreguntaLibre : EGRespondPregunta
-    {
-        public EGRespondRespuestaLibre Respuesta { get; set; }
-    }
-
-    public class EGRespondRespuesta
-    {
-        
-    }
-
-    public class EGRespondRespuestaLibre : EGRespondRespuesta
-    {
-        public string Texto { get; set; }
-    }
-
-    public class EGRespondRespuestaVariada : EGRespondRespuesta
-    {
-        public List<int> Opciones { get; set; }
-    }
-
-    public class EGRespond
-    {
-        public int Id { get; internal set; }
-        internal IEnumerable<EGGetRespuesta> Respuestas { get; set; }
-        internal IEnumerable<EGRespondPregunta> Preguntas { get; set; }
-    }
-
     public class EGGetEncuesta
     {
         public int Id { get; set; }
@@ -369,6 +402,7 @@ namespace API.Controllers
 
     public class EGGetPregunta
     {
+        public int Id { get; set; }
         public string Texto { get; set; }
         public int Tipo { get; set; }
     }
@@ -384,13 +418,13 @@ namespace API.Controllers
     }
     public class EGGetOpcion
     {
+        public int Id { get; set; }
         public string Texto { get; set; }
     }
 
     public class EGGetRespuesta
     {
         public string Text { get; set; }
-        public int OpcionId { get; set; }
     }
 
     public class EGGetRespuestaLibre : EGGetRespuesta
@@ -401,6 +435,7 @@ namespace API.Controllers
     public class EGGetRespuestaVariada : EGGetRespuesta
     {
 
+        public int OpcionId { get; set; }
     }
 
     public class EGPostEncuesta

@@ -80,6 +80,58 @@ namespace API.Models
                 OrientacionId = entity1.Id,
                 TurnoId = entity4.Id
             });
+
+            context.Salones.Add(new Salon()
+            {
+                Nombre = "Salón 31"
+            });
+            context.Salones.Add(new Salon()
+            {
+                Nombre = "Salón 32"
+            });
+            context.Salones.Add(new Salon()
+            {
+                Nombre = "Salón 33"
+            });
+            var salon = new Salon()
+            {
+                Nombre = "Salón 34"
+            };
+            context.Salones.Add(salon);
+
+            context.Grupos.Add(new Grupo()
+            {
+                Anio = 2018,
+                Grado = 5,
+                Numero = 2,
+                Turno = entity4,
+                Orientacion = entity1
+            });
+
+            context.SaveChanges();
+
+            context.HoraMaterias.Add(new HoraMateria()
+            {
+                Hora = 1,
+                Materia = materiaArray[0],
+                Salon = salon
+            });
+
+            context.HoraMaterias.Add(new HoraMateria()
+            {
+                Hora = 2,
+                Materia = materiaArray[1],
+                Salon = salon
+            });
+
+            context.HoraMaterias.Add(new HoraMateria()
+            {
+                Hora = 3,
+                Materia = materiaArray[2],
+                Salon = salon
+            });
+
+
             context.SaveChanges();
         }
     }

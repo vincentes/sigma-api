@@ -12,6 +12,5 @@ namespace API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public List<EventoGrupo> GruposAsignados { get; set; }
     }
 }

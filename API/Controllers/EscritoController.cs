@@ -132,7 +132,7 @@ namespace API.Controllers
                 Temas = escrito.Temas,
                 DocenteId = user.Id,
                 MateriaId = escrito.MateriaId,
-                GruposAsignados = new List<EventoGrupo>()
+                GruposAsignados = new List<EscritoGrupo>()
             };
 
             foreach(GrupoDto grupoAsignado in escrito.GruposAsignados)
@@ -142,7 +142,7 @@ namespace API.Controllers
                 {
                     Date = escrito.Date,
                     GrupoId = grupoAsignado.Id,
-                    Evento = escritoObject
+                    Escrito = escritoObject
                 });
             }
 

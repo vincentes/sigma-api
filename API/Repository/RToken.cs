@@ -31,6 +31,18 @@ namespace API.Repository
             this._context.SaveChanges();
         }
 
+        public void DeleteByUserId(string id)
+        {
+            List<Token> tokens = _context.Tokens.Include(e => e.User).ToList();
+            foreach(Token t in tokens)
+            {
+                if(t.User.Id == id)
+                {
+                    Delete(t);
+                }
+            }
+        }
+
         public IEnumerable<Token> GetAll()
         {
             return _context.Tokens.ToList();

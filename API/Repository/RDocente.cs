@@ -49,6 +49,14 @@ namespace API.Repository
                 .SingleOrDefault(x => x.Id == id);
         }
 
+        public Docente GetByCI(string ci)
+        {
+            return _context.Docentes
+                .Include(t => t.GrupoDocentes)
+                    .ThenInclude(x => x.Grupo)
+                .SingleOrDefault(x => x.UserName == ci);
+        }
+
         public void Update(Docente item)
         {
             var docente = GetById(item.Id);

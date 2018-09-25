@@ -53,12 +53,11 @@ namespace API.Controllers
             var login = await _signInManager.PasswordSignInAsync(model.CI, model.Password, false, false);
             if (login.Succeeded)
             {
-                var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.CI);
-                var roles = await _userManager.GetRolesAsync(appUser);
+                var docente = ((RDocente) _docenteManager).GetByCI(model.CI);
 
-                if(appUser is Docente)
+                if(docente != null)
                 {
-                    var docente = _docenteManager.GetById(appUser.Id);
+                    var roles = await _userManager.GetRolesAsync(docente);
                     DocenteInfoDto result = new DocenteInfoDto();
                     result.Grupos = new List<GrupoDto>();
                     foreach (GrupoDocente gd in docente.GrupoDocentes)
@@ -78,16 +77,19 @@ namespace API.Controllers
                     }
 
                     return Ok(new {
-                        Token = await GenerateJwtToken(model.CI, appUser),
+                        Token = await GenerateJwtToken(model.CI, docente),
                         Roles = roles,
                         Info = result
                     });
                 } else
                 {
+                    var usuario = _userManager.Users.SingleOrDefault(e => e.UserName == model.CI);
+                    var rolezs = await _userManager.GetRolesAsync(usuario);
+
                     return Ok(new
                     {
-                        Token = await GenerateJwtToken(model.CI, appUser),
-                        Roles = roles
+                        Token = await GenerateJwtToken(model.CI, usuario),
+                        Roles = rolezs
                     });
                 }
 
@@ -165,12 +167,6 @@ namespace API.Controllers
                     {
                         throw new ApplicationException("Creating role 'Docente' failed with error(s): " + assignRoleResult.Errors);
                     }
-                }
-
-                if (await _userManager.IsInRoleAsync(user, "Docente"))
-                {
-                    var docente = (Docente)currentUser;
-                    _docenteManager.Add(docente);
                 }
 
                 await _signInManager.SignInAsync(user, false);

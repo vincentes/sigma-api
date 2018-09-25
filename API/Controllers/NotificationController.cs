@@ -20,13 +20,17 @@ namespace API.Controllers
     public class NotificationController : Controller
     {
         private readonly IRepository<Token> _repo;
-        private readonly IRepository<EventoGrupo> _eventos;
+        private readonly IRepository<TareaGrupo> _tg;
+        private readonly IRepository<ParcialGrupo> _pg;
+        private readonly IRepository<EscritoGrupo> _eg;
         private readonly UserManager<AppUser> _userManager;
 
-        public NotificationController(IRepository<Token> repo, IRepository<EventoGrupo> eventos, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public NotificationController(IRepository<Token> repo, IRepository<TareaGrupo> tg, IRepository<ParcialGrupo> pg, IRepository<EscritoGrupo> eg, IRepository<EscritoGrupo> eventos, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repo = repo;
-            _eventos = eventos;
+            _tg = tg;
+            _pg = pg;
+            _eg = eg;
             _userManager = userManager;
         }
 
@@ -48,15 +52,40 @@ namespace API.Controllers
             });
             return Ok();
         }    
+
+        [HttpPost]
+        public IActionResult DeleteToken()
+        {
+            var ident = User.Identity as ClaimsIdentity;
+            var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            AppUser user = _userManager.Users.SingleOrDefault(r => r.Id == userID);
+
+            RToken rToken = (RToken)this._repo;
+            rToken.DeleteByUserId(user.Id);
+            return Ok();
+        }
     
         [HttpPost]
         public IActionResult EventNotify()
         {
-            IEnumerable<EventoGrupo> eventos = _eventos.GetAll();
-            foreach(EventoGrupo evento in eventos)
+            IEnumerable<ParcialGrupo> parciales = _pg.GetAll();
+            IEnumerable<EscritoGrupo> escritos = _eg.GetAll();
+            IEnumerable<TareaGrupo> tareas = _tg.GetAll();
+            foreach (ParcialGrupo evento in parciales)
             {
                 Firebase.RemindEvents(evento);
             }
+
+            foreach (EscritoGrupo evento in escritos)
+            {
+                Firebase.RemindEvents(evento);
+            }
+
+            foreach (TareaGrupo evento in tareas)
+            {
+                Firebase.RemindEvents(evento);
+            }
+
             return Ok();
         }
         

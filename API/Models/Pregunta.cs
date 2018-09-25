@@ -81,6 +81,7 @@ namespace API.Models
     public class RespuestaUO : RespuestaLimitada
     {
         public int RespuestaOpcionId { get; set; }
+        [ForeignKey("RespuestaOpcionId")]
         public PreguntaOpcion RespuestaOpcion { get; set; }
     }
 

@@ -50,6 +50,8 @@ namespace API.Repository
                     .ThenInclude(e => (e as PreguntaMO).Respuestas)
                 .Include(p => p.Preguntas)
                     .ThenInclude(e => (e as PreguntaMO).Opciones)
+                        .ThenInclude(g => g.RespuestasAsociadas)
+                            .ThenInclude(d => d.Alumno)
                 .Include(p => p.Preguntas)
                     .ThenInclude(e => (e as PreguntaUO).Respuestas)
                 .Include(p => p.Preguntas)

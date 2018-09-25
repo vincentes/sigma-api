@@ -132,7 +132,7 @@ namespace API.Controllers
                 Temas = parcial.Temas,
                 DocenteId = user.Id,
                 MateriaId = parcial.MateriaId,
-                GruposAsignados = new List<EventoGrupo>()
+                GruposAsignados = new List<ParcialGrupo>()
             };
 
             foreach(GrupoDto grupoAsignado in parcial.GruposAsignados)
@@ -142,7 +142,7 @@ namespace API.Controllers
                 {
                     Date = parcial.Date,
                     GrupoId = grupoAsignado.Id,
-                    Evento = parcialObject
+                    Parcial = parcialObject
                 });
             }
 

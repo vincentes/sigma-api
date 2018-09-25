@@ -7,6 +7,7 @@ namespace API.Models
     public partial class SigmaContext : IdentityDbContext<IdentityUser>
     {
         public virtual DbSet<Turno> Turnos { get; set; }
+        public virtual DbSet<Alerta> Alertas { get; set; }
         public virtual DbSet<Materia> Materias { get; set; }
         public virtual DbSet<Grupo> Grupos { get; set; }
         public virtual DbSet<Orientacion> Orientaciones { get; set; }
@@ -22,7 +23,6 @@ namespace API.Models
         public virtual DbSet<TareaGrupo> TareaGrupo { get; set; }
         public virtual DbSet<ParcialGrupo> ParcialGrupo { get; set; }
         public virtual DbSet<EscritoGrupo> EscritoGrupo { get; set; }
-        public virtual DbSet<EventoGrupo> EventoGrupo { get; set; }
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
         public virtual DbSet<Escrito> Escritos { get; set; }
@@ -38,9 +38,11 @@ namespace API.Models
         public virtual DbSet<Respuesta> Respuestas { get; set; }
         public virtual DbSet<RespuestaLibre> RespuestasLibres { get; set; }
         public virtual DbSet<RespuestaLimitada> RespuestasLimitadas { get; set; }
-
-
-
+        public virtual DbSet<PreguntaOpcion> PreguntaOpciones { get; set; }
+        public virtual DbSet<CambioDeSalon> CambioDeSalones { get; set; }
+        public virtual DbSet<Aviso> Avisos { get; set; }
+        public virtual DbSet<HoraMateria> HoraMaterias { get; set; }
+        public virtual DbSet<Salon> Salones { get; set; }
         public SigmaContext(DbContextOptions options) : base(options)
         {
 
@@ -144,10 +146,15 @@ namespace API.Models
                 .HasMany(d => d.Token)
                 .WithOne(p => p.User);
 
-            builder.Entity<EventoGrupo>()
-                .HasOne(d => d.Evento)
-                .WithMany(p => p.GruposAsignados)
-                .HasForeignKey(d => d.EventoId);
+            builder.Entity<ParcialGrupo>()
+                .HasOne(d => d.Grupo)
+                .WithMany(p => p.ParcialGrupo)
+                .HasForeignKey(d => d.GrupoId);
+
+            builder.Entity<EscritoGrupo>()
+                .HasOne(d => d.Grupo)
+                .WithMany(p => p.EscritoGrupo)
+                .HasForeignKey(d => d.GrupoId);
 
             builder.Entity<TareaGrupo>()
                 .HasOne(d => d.Grupo)

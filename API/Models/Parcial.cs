@@ -4,8 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
 {
-    public class Parcial : Event
+    public class Parcial 
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public string DocenteId { get; set; }
 
         public int MateriaId { get; set; }
@@ -17,6 +20,6 @@ namespace API.Models
 
         [ForeignKey("MateriaId")]
         public Materia Materia { get; set; }
-
+        public List<ParcialGrupo> GruposAsignados { get; set; }
     }
 }

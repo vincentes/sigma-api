@@ -57,14 +57,21 @@ namespace API
             services.AddTransient<IRepository<Grupo>, RGrupo>();
             services.AddTransient<IUserRepository<Docente>, RDocente>();
             services.AddTransient<IRepository<GrupoDocente>, RGrupoDocente>();
-            services.AddTransient<IRepository<EventoGrupo>, REventoGrupo>();
+            services.AddTransient<IRepository<ParcialGrupo>, RParcialGrupo>();
+            services.AddTransient<IRepository<EscritoGrupo>, REscritoGrupo>();
             services.AddTransient<IRepository<TareaGrupo>, RTareaGrupo>();
             services.AddTransient<IRepository<Tarea>, RTarea>();
             services.AddTransient<IUserRepository<Alumno>, RAlumno>();
             services.AddTransient<IRepository<Imagen>, RImagen>();
+            services.AddTransient<IRepository<Pregunta>, RPregunta>();
+            services.AddTransient<IRepository<PreguntaOpcion>, RPreguntaOpcion>();
+            services.AddTransient<IRepository<Alerta>, RAlerta>();
             services.AddTransient<IRepository<Token>, RToken>();
             services.AddTransient<IRepository<Parcial>, RParcial>();
             services.AddTransient<IRepository<EncuestaGlobal>, REncuestaGlobal>();
+            services.AddTransient<IRepository<CambioDeSalon>, RCambioDeSalon>();
+            services.AddTransient<IRepository<Salon>, RSalon>();
+            services.AddTransient<IRepository<HoraMateria>, RHoraMateria>();
             services.AddTransient<IUserRepository<Adscripto>, RAdscripto>();
             services.AddTransient<IRepository<Escrito>, REscrito>();
             services.AddIdentity<AppUser, IdentityRole>(options =>

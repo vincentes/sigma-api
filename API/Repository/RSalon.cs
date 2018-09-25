@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace API.Repository
 {
-    public class REvent : IRepository<Event>
+    public class RSalon : IRepository<Salon>
     {
         private readonly SigmaContext _context;
 
-        public REvent(SigmaContext context)
+        public RSalon(SigmaContext context)
         {
             this._context = context;
         }
 
-        public Event Add(Event item)
+        public Salon Add(Salon item)
         {
             var entityEntry = _context.Add(item);
             _context.SaveChanges();
@@ -24,27 +24,26 @@ namespace API.Repository
             return excludeEscritoEntity;
         }
 
-        public void Delete(Event item)
+        public void Delete(Salon item)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Event> GetAll()
+        public IEnumerable<Salon> GetAll()
         {
-            return _context.Events.ToList();
+            return _context.Salones
+                    .ToList();
         }
 
-        public Event GetById(int id)
+        public Salon GetById(int id)
         {
-            return _context.Events
+            return _context.Salones
                     .SingleOrDefault(x => x.Id == id);
         }
 
-        public void Update(Event item)
+        public void Update(Salon item)
         {
-            Event byId = GetById(item.Id);
-            byId.Id = item.Id;
-            _context.Update<Event>(byId);
+            _context.Update<Salon>(item);
             _context.SaveChanges();
         }
     }

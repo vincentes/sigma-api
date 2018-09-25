@@ -13,10 +13,10 @@ namespace API.Utils
 {
     public static class Firebase
     {
-        public static void RemindEvents(EventoGrupo evento)
+        public static void RemindEvents(ParcialGrupo pg)
         {
             DateTime now = DateTime.Now;
-            DateTime deadline = evento.Date;
+            DateTime deadline = pg.Date;
             int daysDifference = (deadline - now).Days;
             string dayName = deadline.ToString("dddd", new CultureInfo("es-ES"));
 
@@ -25,49 +25,20 @@ namespace API.Utils
                 string title;
                 string body;
                 DateTime sent = DateTime.Now;
-                if (evento.Evento is Escrito)
+
+                if (daysDifference == 1)
                 {
-                    if(daysDifference == 1)
-                    {
-                        title = "Escrito próximo";
-                        body = "¡Tenés un escrito mañana!";
-                    } else
-                    {
-                        title = "Escrito próximo";
-                        body = "¡Tenés un escrito este " + dayName + "!";
-                    }
+                    title = "Parcial próximo";
+                    body = "¡Tenés un parcial mañana!";
                 }
-                else if (evento.Evento is Parcial)
+                else
                 {
-                    if(daysDifference == 1)
-                    {
-                        title = "Parcial próximo";
-                        body = "¡Tenés un parcial mañana!";
-                    } else
-                    {
-                        title = "Parcial próximo";
-                        body = "¡Tenés un parcial este " + dayName + "!";
-                    }
-                }
-                else if (evento.Evento is Tarea)
-                {
-                    if (daysDifference == 1)
-                    {
-                        title = "Entrega próxima";
-                        body = "¡Tenés que entregar un deber mañana!";
-                    }
-                    else
-                    {
-                        title = "Entrega próxima";
-                        body = "¡Tenés que entregar un deber este " + dayName + "!";
-                    }
-                } else
-                {
-                    return;
+                    title = "Parcial próximo";
+                    body = "¡Tenés un parcial este " + dayName + "!";
                 }
 
 
-                foreach (Alumno alumno in evento.Grupo.Alumnos)
+                foreach (Alumno alumno in pg.Grupo.Alumnos)
                 {
                     foreach (Token token in alumno.Token)
                     {
@@ -77,32 +48,94 @@ namespace API.Utils
             }
         }
 
-        public static void NotifyCreated(Event evento)
+        public static void RemindEvents(EscritoGrupo pg)
         {
-            if (evento is Escrito)
+            DateTime now = DateTime.Now;
+            DateTime deadline = pg.Date;
+            int daysDifference = (deadline - now).Days;
+            string dayName = deadline.ToString("dddd", new CultureInfo("es-ES"));
+
+            if (daysDifference <= 5)
             {
-                foreach(EventoGrupo grupo in evento.GruposAsignados)
+                string title;
+                string body;
+                DateTime sent = DateTime.Now;
+
+                if (daysDifference == 1)
                 {
-                    SendGroupNotification(grupo, "Asignación de escrito", "Un profesor te ha asignado un escrito.");
+                    title = "Escrito próximo";
+                    body = "¡Tenés un escrito mañana!";
                 }
-            } else if(evento is Parcial)
-            {
-                foreach (EventoGrupo grupo in evento.GruposAsignados)
+                else
                 {
-                    SendGroupNotification(grupo, "Asignación de parcial", "Un profesor te ha asignado un parcial.");
+                    title = "Escrito próximo";
+                    body = "¡Tenés un escrito este " + dayName + "!";
                 }
-            } else if(evento is Tarea)
-            {
-                foreach (EventoGrupo grupo in evento.GruposAsignados)
+
+
+                foreach (Alumno alumno in pg.Grupo.Alumnos)
                 {
-                    SendGroupNotification(grupo, "Asignación de deber", "Un profesor te ha asignado un deber.");
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
                 }
             }
         }
 
-        public static void NotifyCreated(Tarea evento)
+        public static void RemindEvents(TareaGrupo pg)
         {
-            foreach (TareaGrupo grupo in evento.GruposAsignados)
+            DateTime now = DateTime.Now;
+            DateTime deadline = pg.Date;
+            int daysDifference = (deadline - now).Days;
+            string dayName = deadline.ToString("dddd", new CultureInfo("es-ES"));
+
+            if (daysDifference <= 5)
+            {
+                string title;
+                string body;
+                DateTime sent = DateTime.Now;
+
+                if (daysDifference == 1)
+                {
+                    title = "Entrega próxima";
+                    body = "¡Tenés que entregar un deber mañana!";
+                }
+                else
+                {
+                    title = "Entrega próxima";
+                    body = "¡Tenés que entregar un deber este " + dayName + "!";
+                }
+
+                foreach (Alumno alumno in pg.Grupo.Alumnos)
+                {
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
+                }
+            }
+        }
+
+        public static void NotifyCreated(Parcial parcial)
+        {
+            foreach (ParcialGrupo grupo in parcial.GruposAsignados)
+            {
+                SendGroupNotification(grupo, "Nuevo parcial", "Un profesor fijó una fecha de parcial para tu grupo.");
+            }
+        }
+
+        public static void NotifyCreated(Escrito escrito)
+        {
+            foreach (EscritoGrupo grupo in escrito.GruposAsignados)
+            {
+                SendGroupNotification(grupo, "Escrito nuevo", "Un profesor fijó una fecha de escrito para tu grupo.");
+            }
+        }
+
+        public static void NotifyCreated(Tarea tarea)
+        {
+            foreach (TareaGrupo grupo in tarea.GruposAsignados)
             {
                 SendGroupNotification(grupo, "Asignación de deber", "Un profesor te ha asignado un deber.");
             }
@@ -112,20 +145,40 @@ namespace API.Utils
         {
             foreach (Alumno alumno in tg.Grupo.Alumnos)
             {
-                foreach (Token token in alumno.Token)
+                if(alumno.Token != null)
                 {
-                    SendNotification(token.Content, title, body);
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
                 }
             }
         }
 
-        public static void SendGroupNotification(EventoGrupo evento, string title, string body)
+        public static void SendGroupNotification(ParcialGrupo tg, string title, string body)
         {
-            foreach (Alumno alumno in evento.Grupo.Alumnos)
+            foreach (Alumno alumno in tg.Grupo.Alumnos)
             {
-                foreach (Token token in alumno.Token)
+                if (alumno.Token != null)
                 {
-                    SendNotification(token.Content, title, body);
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
+                }
+            }
+        }
+
+        public static void SendGroupNotification(EscritoGrupo tg, string title, string body)
+        {
+            foreach (Alumno alumno in tg.Grupo.Alumnos)
+            {
+                if (alumno.Token != null)
+                {
+                    foreach (Token token in alumno.Token)
+                    {
+                        SendNotification(token.Content, title, body);
+                    }
                 }
             }
         }
