@@ -51,6 +51,12 @@ namespace API.Repository
                     .ThenInclude(x => x.Imagen)
                 .Include(t => t.Docente)
                 .Include(t => t.Materia)
+                .Include(t => t.GruposAsignados)
+                    .ThenInclude(p => p.Grupo)
+                        .ThenInclude(p => p.Alumnos)
+                            .ThenInclude(p => p.Token)
+                .Include(t => t.GruposAsignados)
+                    .ThenInclude(p => p.Tarea)
                 .ToList();
         }
 

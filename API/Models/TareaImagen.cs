@@ -12,9 +12,9 @@ namespace API.Models
         public int TareaId { get; set; }
 
         public int ImagenId { get; set; }
-
-        public virtual Tarea Tarea { get; set; }
-
-        public virtual Imagen Imagen { get; set; }
+        [ForeignKey("TareaId")]
+        public  Tarea Tarea { get; set; }
+        [ForeignKey("ImagenId")]
+        public Imagen Imagen { get; set; }
     }
 }

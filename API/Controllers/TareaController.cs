@@ -106,9 +106,12 @@ namespace API.Controllers
                     ImageIds = new List<int>()
                 };
                 
-                foreach(TareaImagen ti in t.TareaImagen)
+                if(t.TareaImagen != null)
                 {
-                    tarea.ImageIds.Add(ti.ImagenId);
+                    foreach(TareaImagen ti in t.TareaImagen)
+                    {
+                        tarea.ImageIds.Add(ti.ImagenId);
+                    }
                 }
 
                 tareas.Add(tarea);
