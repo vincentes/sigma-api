@@ -166,7 +166,8 @@ namespace API.Controllers
             RespuestaMO respuesta = new RespuestaMO
             {
                 Alumno = alumno,
-                Pregunta = pregunta
+                Pregunta = pregunta,
+                Respuestas = new List<OpcionRespuesta>()
             };
 
             foreach(int opcion in dto.Opciones)
