@@ -163,23 +163,17 @@ namespace API.Controllers
             Alumno alumno = _alumnos.GetById(userID);
 
             PreguntaMO pregunta = (PreguntaMO) _preguntas.GetById(dto.Id);
-            RespuestaMO respuesta = new RespuestaMO
-            {
-                Alumno = alumno,
-                Pregunta = pregunta,
-                Respuestas = new List<OpcionRespuesta>()
-            };
-
             foreach(int opcion in dto.Opciones)
             {
-                respuesta.Respuestas.Add(new OpcionRespuesta
+                var o = _opciones.GetById(opcion);
+                o.RespuestasAsociadas.Add(new RespuestaLimitada
                 {
-                    Opcion = _opciones.GetById(opcion),
-                    Respuesta = respuesta
+                    Alumno = alumno,
+                    Pregunta = pregunta
                 });
+                _opciones.Update(o);
             }
 
-            _preguntas.Update(pregunta);
             return Ok();
         }
 
@@ -196,8 +190,16 @@ namespace API.Controllers
                 Alumno = alumno,
                 Pregunta = pregunta
             };
-
+        
             respuesta.RespuestaOpcion = _opciones.GetById(dto.Opcion);
+            foreach(Respuesta o in respuesta.RespuestaOpcion.RespuestasAsociadas)
+            {
+                if(o.AlumnoId == alumno.Id)
+                {
+                    return BadRequest();
+                }
+            }
+
             pregunta.Respuestas.Add(respuesta);
             _preguntas.Update(pregunta);
             return Ok();
@@ -210,7 +212,7 @@ namespace API.Controllers
             var userID = ident.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             Alumno alumno = _alumnos.GetById(userID);
 
-            PreguntaEL pregunta = (PreguntaEL)_preguntas.GetById(dto.Id);
+            PreguntaLibre pregunta = (PreguntaLibre)_preguntas.GetById(dto.Id);
             RespuestaLibre respuesta = new RespuestaLibre
             {
                 Alumno = alumno,
@@ -218,6 +220,7 @@ namespace API.Controllers
             };
 
             respuesta.Texto = dto.Texto;
+            pregunta.Respuestas.Add(respuesta);
             _preguntas.Update(pregunta);
             return Ok();
         }
@@ -288,7 +291,8 @@ namespace API.Controllers
                         proxyProductPregunta.Opciones.Add(new EGGetOpcion()
                         {
                             Id = opcion.Id,
-                            Texto = opcion.Valor
+                            Texto = opcion.Valor,
+                            Respuestas = opcion.RespuestasAsociadas.Count
                         });
                     }
 
@@ -421,6 +425,7 @@ namespace API.Controllers
     {
         public int Id { get; set; }
         public string Texto { get; set; }
+        public int Respuestas { get; set; }
     }
 
     public class EGGetRespuesta

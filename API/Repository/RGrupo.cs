@@ -53,6 +53,7 @@ namespace API.Repository
                 .Include(e => e.GrupoDocentes)
                     .ThenInclude(t => t.Docente)
                 .Include(e => e.Alumnos)
+                    .ThenInclude(p => p.Token)
                 .SingleOrDefault(x => x.Id == id);
         }
 

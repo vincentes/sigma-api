@@ -42,14 +42,14 @@ namespace API.Repository
         public PreguntaOpcion GetById(int id)
         {
             return _context.PreguntaOpciones
+                        .Include(e => e.RespuestasAsociadas)
+                            .ThenInclude(p => p.Alumno)
                         .SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(PreguntaOpcion item)
         {
-            PreguntaOpcion byId = this.GetById(item.Id);
-            byId.Id = item.Id;
-            this._context.Update<PreguntaOpcion>(byId);
+            this._context.Update<PreguntaOpcion>(item);
             this._context.SaveChanges();
         }
     }
