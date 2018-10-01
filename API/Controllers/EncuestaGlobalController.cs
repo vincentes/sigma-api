@@ -288,12 +288,23 @@ namespace API.Controllers
                     foreach (PreguntaOpcion opcion in _pregunta.Opciones)
                     {
                         var cast = opcion;
-                        proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                        if(opcion.RespuestasAsociadas != null)
                         {
-                            Id = opcion.Id,
-                            Texto = opcion.Valor,
-                            Respuestas = opcion.RespuestasAsociadas.Count
-                        });
+                            proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                            {
+                                Id = opcion.Id,
+                                Texto = opcion.Valor,
+                                Respuestas = opcion.RespuestasAsociadas.Count
+                            });
+                        } else
+                        {
+                            proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                            {
+                                Id = opcion.Id,
+                                Texto = opcion.Valor,
+                                Respuestas = 0
+                            });
+                        }
                     }
 
                     if (_pregunta.Respuestas != null)
