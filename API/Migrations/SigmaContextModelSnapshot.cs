@@ -97,6 +97,26 @@ namespace API.Migrations
                     b.ToTable("EncuestasGlobales");
                 });
 
+            modelBuilder.Entity("API.Models.Escrito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("DocenteId");
+
+                    b.Property<int>("MateriaId");
+
+                    b.Property<string>("Temas");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocenteId");
+
+                    b.HasIndex("MateriaId");
+
+                    b.ToTable("Escritos");
+                });
+
             modelBuilder.Entity("API.Models.EscritoGrupo", b =>
                 {
                     b.Property<int>("Id")
@@ -117,21 +137,6 @@ namespace API.Migrations
                     b.HasIndex("GrupoId");
 
                     b.ToTable("EscritoGrupo");
-                });
-
-            modelBuilder.Entity("API.Models.Event", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Event");
                 });
 
             modelBuilder.Entity("API.Models.Grupo", b =>
@@ -402,15 +407,11 @@ namespace API.Migrations
 
                     b.Property<string>("DocenteId");
 
-                    b.Property<int>("EventoId");
-
                     b.Property<int>("MateriaId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DocenteId");
-
-                    b.HasIndex("EventoId");
 
                     b.HasIndex("MateriaId");
 
@@ -647,25 +648,6 @@ namespace API.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("API.Models.Escrito", b =>
-                {
-                    b.HasBaseType("API.Models.Event");
-
-                    b.Property<string>("DocenteId");
-
-                    b.Property<int>("MateriaId");
-
-                    b.Property<string>("Temas");
-
-                    b.HasIndex("DocenteId");
-
-                    b.HasIndex("MateriaId");
-
-                    b.ToTable("Escrito");
-
-                    b.HasDiscriminator().HasValue("Escrito");
-                });
-
             modelBuilder.Entity("API.Models.PreguntaLibre", b =>
                 {
                     b.HasBaseType("API.Models.Pregunta");
@@ -833,6 +815,18 @@ namespace API.Migrations
                         .HasForeignKey("AdscriptoId");
                 });
 
+            modelBuilder.Entity("API.Models.Escrito", b =>
+                {
+                    b.HasOne("API.Models.Docente", "Docente")
+                        .WithMany()
+                        .HasForeignKey("DocenteId");
+
+                    b.HasOne("API.Models.Materia", "Materia")
+                        .WithMany()
+                        .HasForeignKey("MateriaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("API.Models.EscritoGrupo", b =>
                 {
                     b.HasOne("API.Models.Escrito", "Escrito")
@@ -982,11 +976,6 @@ namespace API.Migrations
                         .WithMany("Tareas")
                         .HasForeignKey("DocenteId");
 
-                    b.HasOne("API.Models.Event", "Evento")
-                        .WithMany()
-                        .HasForeignKey("EventoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("API.Models.Materia", "Materia")
                         .WithMany("Tareas")
                         .HasForeignKey("MateriaId")
@@ -1068,18 +1057,6 @@ namespace API.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("API.Models.Escrito", b =>
-                {
-                    b.HasOne("API.Models.Docente", "Docente")
-                        .WithMany()
-                        .HasForeignKey("DocenteId");
-
-                    b.HasOne("API.Models.Materia", "Materia")
-                        .WithMany()
-                        .HasForeignKey("MateriaId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

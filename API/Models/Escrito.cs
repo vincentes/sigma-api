@@ -4,8 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
 {
-    public class Escrito : Event
+    public class Escrito
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
         public string DocenteId { get; set; }
 
         public int MateriaId { get; set; }

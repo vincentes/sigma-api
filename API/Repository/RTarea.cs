@@ -27,10 +27,6 @@ namespace API.Repository
                 _context.Add(ti);
             }
     
-            if(item.Evento == null)
-            {
-                item.Evento = new Event();
-            }
             var entityEntry = _context.Add(item);
             _context.SaveChanges();
             var excludeDocenteEntity = entityEntry.Entity;

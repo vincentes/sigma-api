@@ -22,10 +22,5 @@ namespace API.Models
         public Materia Materia { get; set; }
         public List<TareaGrupo> GruposAsignados { get; set; }
 
-        public int EventoId { get; set; }
-
-        [ForeignKey("EventoId")]
-        public Event Evento { get; set; }
-
     }
 }

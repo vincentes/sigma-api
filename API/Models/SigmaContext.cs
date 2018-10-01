@@ -26,7 +26,6 @@ namespace API.Models
         public virtual DbSet<Alumno> Students { get; set; }
         public virtual DbSet<Parcial> Parciales { get; set; }
         public virtual DbSet<Escrito> Escritos { get; set; }
-        public virtual DbSet<Event> Events { get; set; }
         public virtual DbSet<EncuestaGlobal> EncuestasGlobales { get; set; }
         public virtual DbSet<Adscripto> Adscriptos { get; set; }
         public virtual DbSet<Pregunta> Preguntas { get; set; }
