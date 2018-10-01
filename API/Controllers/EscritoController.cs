@@ -35,7 +35,9 @@ namespace API.Controllers
             IEnumerable<Escrito> all = this._repo.GetAll();
             List<GetEscritoDto> escritoList = new List<GetEscritoDto>();
             foreach (Escrito escrito in all)
+            {
                 escritoList.Add(DtoGet(escrito));
+            }
             return escritoList;
         }
 
@@ -86,9 +88,12 @@ namespace API.Controllers
             List<GetEscritoDto> output = new List<GetEscritoDto>();
             foreach(Escrito escrito in all)
             {
-                if(escrito.DocenteId == user.Id)
+                if (escrito.GruposAsignados.Count > 0)
                 {
-                    output.Add(DtoGet(escrito));
+                    if (escrito.DocenteId == user.Id)
+                    {
+                        output.Add(DtoGet(escrito));
+                    }
                 }
             }
 

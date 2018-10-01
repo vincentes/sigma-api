@@ -241,13 +241,6 @@ namespace API.Controllers
             return StatusCode((int)HttpStatusCode.Conflict);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<object> Protected()
-        {
-            return "!!! THOTS BEGONE !!!";
-        }
-
         private async Task<object> GenerateJwtToken(string ci, AppUser user)
         {
             IdentityOptions options = new IdentityOptions();
