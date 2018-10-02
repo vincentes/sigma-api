@@ -290,12 +290,23 @@ namespace API.Controllers
                         var cast = opcion;
                         if(opcion.RespuestasAsociadas != null)
                         {
-                            proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                            if(_pregunta is PreguntaMO)
                             {
-                                Id = opcion.Id,
-                                Texto = opcion.Valor,
-                                Respuestas = opcion.RespuestasAsociadas.Count
-                            });
+                                proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                                {
+                                    Id = opcion.Id,
+                                    Texto = opcion.Valor,
+                                    Respuestas = opcion.RespuestasAsociadas.Count
+                                });
+                            } else
+                            {
+                                proxyProductPregunta.Opciones.Add(new EGGetOpcion()
+                                {
+                                    Id = opcion.Id,
+                                    Texto = opcion.Valor,
+                                    Respuestas = _pregunta.Respuestas.Count
+                                });
+                            }
                         } else
                         {
                             proxyProductPregunta.Opciones.Add(new EGGetOpcion()
