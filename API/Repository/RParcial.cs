@@ -41,6 +41,8 @@ namespace API.Repository
                         .Include(t => t.Materia)
                         .Include(t => t.GruposAsignados)
                             .ThenInclude(p => p.Grupo)
+                                .ThenInclude(x => x.Alumnos)
+                                    .ThenInclude(z => z.Token)
                         .ToList();
         }
 
@@ -51,6 +53,8 @@ namespace API.Repository
                         .Include(t => t.Materia)
                         .Include(t => t.GruposAsignados)
                             .ThenInclude(p => p.Grupo)
+                                .ThenInclude(x => x.Alumnos)
+                                    .ThenInclude(z => z.Token)
                         .SingleOrDefault(x => x.Id == id);
         }
 
