@@ -21,12 +21,14 @@ namespace API.Controllers
         private readonly IRepository<Parcial> _repo;
         private readonly UserManager<AppUser> _userManager;
         private readonly IRepository<Grupo> _grupos;
+        private readonly IRepository<ParcialGrupo> _parciales;
 
-        public ParcialController(IRepository<Parcial> repo, IRepository<Grupo> grupos, UserManager<AppUser> userManager)
+        public ParcialController(IRepository<Parcial> repo, IRepository<ParcialGrupo> parciales, IRepository<Grupo> grupos, UserManager<AppUser> userManager)
         {
             _repo = repo;
             _userManager = userManager;
             _grupos = grupos;
+            _parciales = parciales;
         }
 
         [HttpGet]
@@ -88,6 +90,9 @@ namespace API.Controllers
             {
                 if(parcial.DocenteId == user.Id)
                 {
+                    RParcialGrupo pg = (RParcialGrupo)_parciales;
+                    List<ParcialGrupo> gruposAsignados = pg.GetAssignedGroups(parcial.Id);
+                    parcial.GruposAsignados = gruposAsignados;
                     output.Add(DtoGet(parcial));
                 }
             }

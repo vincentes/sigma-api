@@ -53,9 +53,39 @@ namespace API.Repository
                 .ToList();
         }
 
-        ParcialGrupo IRepository<ParcialGrupo>.GetById(int id)
+        ParcialGrupo IRepository<ParcialGrupo>.GetById(int parcialId)
         {
-            throw new NotImplementedException();
+            return _context.ParcialGrupo
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Turno)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Orientacion)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Grupo)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Docente)
+                .Include(t => t.Parcial)
+                .SingleOrDefault(x => x.ParcialId == parcialId);
+        }
+
+        public List<ParcialGrupo> GetAssignedGroups(int parcialId)
+        {
+            return _context.ParcialGrupo
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Turno)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.Orientacion)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Grupo)
+                .Include(t => t.Grupo)
+                    .ThenInclude(e => e.GrupoDocentes)
+                        .ThenInclude(t => t.Docente)
+                .Include(t => t.Parcial)
+                .Where(x => x.ParcialId == parcialId)
+                .ToList();
         }
     }
 }
