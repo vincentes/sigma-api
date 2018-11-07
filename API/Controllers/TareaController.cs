@@ -103,6 +103,7 @@ namespace API.Controllers
                     Contenido = t.Contenido,
                     DocenteId = t.DocenteId,
                     MateriaId = t.MateriaId,
+                    MateriaNombre = t.Materia.Nombre,
                     ImageIds = new List<int>()
                 };
                 
@@ -184,6 +185,7 @@ namespace API.Controllers
                 DocenteId = tarea.DocenteId,
                 MateriaId = tarea.MateriaId,
                 Contenido = tarea.Contenido,
+                MateriaNombre = tarea.Materia.Nombre,
                 ImageIds = new List<int>()
             };
             foreach (TareaImagen tareaImagen in tarea.TareaImagen)
@@ -281,13 +283,10 @@ namespace API.Controllers
         public class TareaDto
         {
             public int Id { get; set; }
-
             public List<int> ImageIds { get; set; }
-
             public string DocenteId { get; set; }
-
             public int MateriaId { get; set; }
-
+            public string MateriaNombre { get; set; }
             public string Contenido { get; set; }
         }
 

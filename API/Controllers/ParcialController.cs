@@ -58,6 +58,7 @@ namespace API.Controllers
                 Id = parcial.Id,
                 DocenteId = parcial.DocenteId,
                 MateriaId = parcial.MateriaId,
+                MateriaNombre = parcial.Materia.Nombre,
                 Temas = parcial.Temas,
                 Fecha = parcial.GruposAsignados.ElementAt(0).Date,
                 GruposAsignados = new List<GrupoDto>()
@@ -153,13 +154,7 @@ namespace API.Controllers
 
             Parcial addParcial = _repo.Add(parcialObject);
             Firebase.NotifyCreated(addParcial);
-            return CreatedAtRoute("GetParcial", new
-            {
-                id = addParcial.Id
-            }, new
-            {
-                Parcial = DtoGet(addParcial)
-            });
+            return Ok(DtoGet(addParcial));
         }
 
         public class PostParcialDto
@@ -176,6 +171,7 @@ namespace API.Controllers
             public int Id { get; set; }
             public string DocenteId { get; set; }
             public int MateriaId { get; set; }
+            public string MateriaNombre { get; set; }
             public string Temas { get; set; }
             public List<GrupoDto> GruposAsignados { get; set; }
         }
@@ -186,6 +182,7 @@ namespace API.Controllers
             public DateTime Fecha { get; set; }
             public string DocenteId { get; set; }
             public int MateriaId { get; set; }
+            public string MateriaNombre { get; set; }
             public string Temas { get; set; }
             public List<GrupoDto> GruposAsignados { get; set; }
         }

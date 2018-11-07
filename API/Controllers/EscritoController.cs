@@ -57,9 +57,9 @@ namespace API.Controllers
             {
                 Id = escrito.Id,
                 DocenteId = escrito.DocenteId,
-                MateriaId = escrito.MateriaId,
                 Temas = escrito.Temas,
                 Fecha = escrito.GruposAsignados.ElementAt(0).Date,
+                MateriaNombre = escrito.Materia.Nombre,
                 GruposAsignados = new List<GrupoDto>()
             };
 
@@ -176,6 +176,7 @@ namespace API.Controllers
             public int Id { get; set; }
             public string DocenteId { get; set; }
             public int MateriaId { get; set; }
+            public string MateriaNombre { get; set; }
             public string Temas { get; set; }
             public List<GrupoDto> GruposAsignados { get; set; }
         }
@@ -186,6 +187,7 @@ namespace API.Controllers
             public DateTime Fecha { get; set; }
             public string DocenteId { get; set; }
             public int MateriaId { get; set; }
+            public string MateriaNombre { get; set; }
             public string Temas { get; set; }
             public List<GrupoDto> GruposAsignados { get; set; }
         }
