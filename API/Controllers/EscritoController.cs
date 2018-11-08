@@ -59,9 +59,14 @@ namespace API.Controllers
                 DocenteId = escrito.DocenteId,
                 Temas = escrito.Temas,
                 Fecha = escrito.GruposAsignados.ElementAt(0).Date,
-                MateriaNombre = escrito.Materia.Nombre,
+                MateriaId = escrito.MateriaId,
                 GruposAsignados = new List<GrupoDto>()
             };
+
+            if(escrito.Materia != null)
+            {
+                escritoDto.MateriaNombre = escrito.Materia.Nombre;
+            }
 
             foreach(EscritoGrupo grupo in escrito.GruposAsignados)
             {
