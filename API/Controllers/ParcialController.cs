@@ -58,13 +58,17 @@ namespace API.Controllers
                 Id = parcial.Id,
                 DocenteId = parcial.DocenteId,
                 MateriaId = parcial.MateriaId,
-                MateriaNombre = parcial.Materia.Nombre,
                 Temas = parcial.Temas,
                 Fecha = parcial.GruposAsignados.ElementAt(0).Date,
                 GruposAsignados = new List<GrupoDto>()
             };
 
-            foreach(ParcialGrupo grupo in parcial.GruposAsignados)
+            if(parcial.Materia != null)
+            {
+                parcialDto.MateriaNombre = parcial.Materia.Nombre;
+            }
+
+            foreach (ParcialGrupo grupo in parcial.GruposAsignados)
             {
                 parcialDto.GruposAsignados.Add(new GrupoDto
                 {

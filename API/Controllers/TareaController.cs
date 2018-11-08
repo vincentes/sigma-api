@@ -103,11 +103,15 @@ namespace API.Controllers
                     Contenido = t.Contenido,
                     DocenteId = t.DocenteId,
                     MateriaId = t.MateriaId,
-                    MateriaNombre = t.Materia.Nombre,
                     ImageIds = new List<int>()
                 };
                 
-                if(t.TareaImagen != null)
+                if(t.Materia != null)
+                {
+                    tarea.MateriaNombre = t.Materia.Nombre;
+                }
+
+                if (t.TareaImagen != null)
                 {
                     foreach(TareaImagen ti in t.TareaImagen)
                     {
@@ -185,9 +189,13 @@ namespace API.Controllers
                 DocenteId = tarea.DocenteId,
                 MateriaId = tarea.MateriaId,
                 Contenido = tarea.Contenido,
-                MateriaNombre = tarea.Materia.Nombre,
                 ImageIds = new List<int>()
             };
+
+            if (tarea.Materia != null)
+            {
+                tareaDto.MateriaNombre = tarea.Materia.Nombre;
+            }
             foreach (TareaImagen tareaImagen in tarea.TareaImagen)
                 tareaDto.ImageIds.Add(tareaImagen.ImagenId);
             return tareaDto;
